@@ -209,14 +209,18 @@ if (typeof window.CustomEvent !== "function") {
 
     // Iterate over each selector from settings.
     for (var selector in self.settings) {
-      // Get all elements matching the selector.
-      gridElements = document.querySelectorAll(selector);
-      // Register each grid element for each media query change.
-      Array.prototype.forEach.call(gridElements, function processMediaQueries(grid) {
-        for (var mq in self.settings[selector]) {
-          self.register(grid, selector, mq);
-        }
-      });
+      if (self.settings.hasOwnProperty(selector)) {
+        // Get all elements matching the selector.
+        gridElements = document.querySelectorAll(selector);
+        // Register each grid element for each media query change.
+        Array.prototype.forEach.call(gridElements, function processMediaQueries(grid) {
+          for (var mq in self.settings[selector]) {
+            if (self.settings[selector].hasOwnProperty(mq)) {
+              self.register(grid, selector, mq);
+            }
+          }
+        });
+      }
     }
 
     self.ready = true;
