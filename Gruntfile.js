@@ -9,6 +9,7 @@ module.exports = function(grunt) {
       },
       dist: {
         src: [
+         'src/includes/requestAnimationFrame.js',
          'src/includes/customEvent.js',
          'src/*.js'],
         dest: 'dist/<%= pkg.name %>.js'
