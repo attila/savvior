@@ -158,18 +158,19 @@ var savvior = (function(global, document, undefined) {
       deferSetup: true,
 
       setup: function savviorSetup() {
+        // Set current media query.
         self.currentMQ = mq;
+        // Register the grid element.
         self.registerGrid(grid, selector);
       },
 
       match: function savviorMatch() {
-        if (self.currentMQ !== mq) {
+        // Set current media query.
+        if (self.currentMQ !== mq)
           self.currentMQ = mq;
-        }
-
-        if (self.registered[selector] === true) {
+        // Recreate columns if it is already registered.
+        if (self.registered[selector] === true)
           self.recreateColumns(grid, selector);
-        }
       }
     });
   };
