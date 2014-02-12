@@ -25,13 +25,14 @@ var savvior = (function(global, document, undefined) {
 
   /**
    * Create columns with the configured classes and add a list of items to them.
-   * @param {[type]} grid     [description]
-   * @param {[type]} items    [description]
-   * @param {[type]} selector [description]
+   *
+   * @param Object grid     The grid element object
+   * @param Object items    The column element object
+   * @param String selector String selector The element selector of the grid
    */
   self.addColumns = function addColumns(grid, items, selector) {
     var numberOfColumns = self.settings[selector][self.currentMQ].columns,
-      columnClasses = ["column", "column-"+ numberOfColumns],
+      columnClasses = ["column", "size-1of"+ numberOfColumns],
       columnsItems = new Array(+numberOfColumns),
       columnsFragment = document.createDocumentFragment(),
       i = numberOfColumns,
@@ -61,11 +62,10 @@ var savvior = (function(global, document, undefined) {
 
 
   /**
-   * Remove all the columns from a grid and return a list of items sorted by the
-   * ordering of columns.
+   * Remove all the columns from a grid and prepare it for populating again.
    *
-   * @param  {[type]} grid [description]
-   * @return {[type]}      [description]
+   * @param  Object grid The grid element object
+   * @return Object      A list of items sorted by the ordering of columns
    */
   self.removeColumns = function removeColumns(grid) {
     var range = document.createRange();
@@ -99,11 +99,10 @@ var savvior = (function(global, document, undefined) {
 
 
   /**
-   * Remove all the columns from the grid, and adds them again.
-   * This is useful when the number of columns change.
+   * Remove all the columns from the grid, and add them again, but only if the
+   * number of columns have changed.
    *
-   * @param  {[type]} grid [description]
-   * @return {[type]}      [description]
+   * @param  Object grid The grid element object
    */
   self.recreateColumns = function recreateColumns(grid, selector) {
     global.requestAnimationFrame(function renderOnChange() {
@@ -120,9 +119,10 @@ var savvior = (function(global, document, undefined) {
 
 
   /**
-   * Register the grid
-   * @param  {[type]} grid [description]
-   * @return {[type]}      [description]
+   * Register the grid element and add the configured number of columns.
+   *
+   * @param  Object grid     The grid element object
+   * @param  String selector The element selector of the grid
    */
   self.registerGrid = function registerGrid(grid, selector) {
     if (global.getComputedStyle(grid).display === "none") {
@@ -146,11 +146,12 @@ var savvior = (function(global, document, undefined) {
 
 
   /**
-   * [register description]
-   * @param  {[type]} grid     [description]
-   * @param  {[type]} selector [description]
-   * @param  {[type]} mq       [description]
-   * @return {[type]}          [description]
+   * Register enquire event handlers for the configured grid element and media
+   * query.
+   *
+   * @param  Object grid     The grid element object
+   * @param  String selector The element selector of the grid
+   * @param  String mq       The media query to match
    */
   self.register = function register(grid, selector, mq) {
     enquire.register(mq, {
@@ -175,8 +176,9 @@ var savvior = (function(global, document, undefined) {
 
 
   /**
-   * Initialisation
-   * @return {[type]} [description]
+   * Initialisation.
+   *
+   * @param  Object settings The settings object for each grid element
    */
   self.init = function init(settings) {
     if (typeof settings === "undefined") {
