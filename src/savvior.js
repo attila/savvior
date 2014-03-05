@@ -212,7 +212,9 @@ var savvior = (function(global, document, undefined) {
   };
 
   return {
-    init: self.init,
+    init: function(settings) {
+      return self.init(settings);
+    },
     ready: function() {
       return self.ready;
     }

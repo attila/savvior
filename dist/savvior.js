@@ -259,7 +259,9 @@ if (typeof window.CustomEvent !== "function") {
   };
 
   return {
-    init: self.init,
+    init: function(settings) {
+      return self.init(settings);
+    },
     ready: function() {
       return self.ready;
     }
