@@ -3,6 +3,25 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+
+    meta: {
+      banner: {
+        dist:       '/*!\n'+
+                    ' * <%= pkg.name %> v<%= pkg.version %> - <%= pkg.description %>\n'+
+                    ' * <%= pkg.homepage %>\n'+
+                    ' * <%= pkg.repository.url %>\n'+
+                    ' */\n',
+        standalone: '/*!\n'+
+                    ' * <%= pkg.name %> v<%= pkg.version %> standalone - <%= pkg.description %>\n'+
+                    ' * <%= pkg.homepage %>\n'+
+                    ' * <%= pkg.repository.url %>\n'+
+                    ' */\n',
+      },
+      outputDir: 'dist',
+      output : '<%= meta.outputDir %>/<%= pkg.name %>',
+      outputMin : '<%= meta.outputDir %>/<%= pkg.name.replace("js", "min.js") %>'
+    },
+
     concat: {
       options: {
         separator: ';'
@@ -12,7 +31,7 @@ module.exports = function(grunt) {
          'src/includes/requestAnimationFrame.js',
          'src/includes/customEvent.js',
          'src/*.js'],
-        dest: 'dist/<%= pkg.name %>.js'
+        dest: '<%= meta.output %>.js'
       },
       standalone: {
         src: [
@@ -21,35 +40,32 @@ module.exports = function(grunt) {
          'src/includes/requestAnimationFrame.js',
          'src/includes/customEvent.js',
          'src/*.js'],
-        dest: 'dist/<%= pkg.name %>.standalone.js'
+        dest: '<%= meta.output %>.standalone.js'
       }
     },
+
     uglify: {
       options: {
-        banner: '/*!\n'+
-                ' * Savvior v<%= pkg.version %> - A Salvattore or Masonry alternative for multiple column layouts.\n'+
-                ' * http://savvior.org\n'+
-                ' * <%= pkg.repository.url %>\n'+
-                ' */\n'
+        report: 'gzip'
       },
       dist: {
+        options: {
+          banner: '<%= meta.banner.dist %>'
+        },
         files: {
-          'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
+          '<%= meta.outputDir %>/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
         }
       },
       standalone: {
-        files: {
-          'dist/<%= pkg.name %>.standalone.min.js': ['<%= concat.standalone.dest %>']
-        },
         options: {
-          banner: '/*!\n'+
-                  ' * Savvior standalone v<%= pkg.version %> - A Salvattore or Masonry alternative for multiple column layouts.\n'+
-                  ' * http://savvior.org\n'+
-                  ' * <%= pkg.repository.url %>\n'+
-                  ' */\n'
+          banner: '<%= meta.banner.standalone %>'
         },
+        files: {
+          '<%= meta.outputDir %>/<%= pkg.name %>.standalone.min.js': ['<%= concat.standalone.dest %>']
+        }
       }
     },
+
     jshint: {
       files: ['Gruntfile.js', 'src/*.js'],
       options: {
@@ -57,17 +73,47 @@ module.exports = function(grunt) {
         strict: true
       }
     },
+
+    jasmine: {
+      dist: {
+        options: {
+          specs: 'tests/*Spec.js',
+          keepRunner: true,
+          vendor: [
+            "node_modules/jquery/dist/jquery.js",
+            "tests/lib/jasmine-jquery/jasmine-jquery.js",
+            "src/includes/enquire.js",
+            "src/includes/requestAnimationFrame.js",
+            "src/includes/customEvent.js"
+          ]
+        },
+        src: 'src/<%= pkg.name %>.js'
+      }
+    },
+
+    strip_code: {
+      options: {
+        start_comment: 'savvior-testing-code-start',
+        end_comment: 'savvior-testing-code-end',
+      },
+      dist: {
+        src: '<%= concat.dist.dest %>'
+      }
+    },
+
     watch: {
-      files: ['<%= jshint.files %>'],
+      files: ['<%= jshint.files %>', 'tests/*.js'],
       tasks: ['default']
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-strip-code');
 
-  grunt.registerTask('test', ['jshint']);
-  grunt.registerTask('default', ['jshint', 'concat', 'uglify']);
+  grunt.registerTask('test', ['jshint', 'jasmine']);
+  grunt.registerTask('default', ['test', 'concat', 'strip_code', 'uglify']);
 };

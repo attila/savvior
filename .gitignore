@@ -47,5 +47,7 @@ publish
 node_modules
 
 # build script local files
+.grunt
+_SpecRunner.html
 build/buildinfo.properties
 build/config/buildinfo.properties
