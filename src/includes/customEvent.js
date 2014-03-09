@@ -9,8 +9,8 @@ if (typeof window.CustomEvent !== "function") {
       return evt;
      }
 
-    CustomEvent.prototype = window.CustomEvent.prototype;
-
     window.CustomEvent = CustomEvent;
+
+    CustomEvent.prototype = window.CustomEvent.prototype;
   })();
 }
