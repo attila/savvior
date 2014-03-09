@@ -110,9 +110,9 @@ var savvior = (function(global, document, undefined) {
         oldColumns = parseInt(grid.getAttribute("data-columns"));
 
       if (newColumns !== oldColumns) {
-        var savviorMatch = new CustomEvent("savviorMatch", {detail: grid});
+        var savviorMatchEvent = new CustomEvent("savvior:match", {detail: grid});
         self.addColumns(grid, self.removeColumns(grid), selector);
-        global.dispatchEvent(savviorMatch);
+        global.dispatchEvent(savviorMatchEvent);
       }
     });
   };
@@ -186,7 +186,7 @@ var savvior = (function(global, document, undefined) {
       return false;
     }
 
-    var savviorInit = new CustomEvent("savviorInit"),
+    var savviorInitEvent = new CustomEvent("savvior:init"),
       gridElements = [];
 
     self.settings = settings;
@@ -208,7 +208,10 @@ var savvior = (function(global, document, undefined) {
     }
 
     self.ready = true;
-    global.dispatchEvent(savviorInit);
+    global.dispatchEvent(savviorInitEvent);
+    /* savvior-testing-code-start */
+    return self;
+    /* savvior-testing-code-end */
   };
 
   return {
