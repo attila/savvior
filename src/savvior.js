@@ -161,30 +161,66 @@ var savvior = (function(global, document, undefined) {
       selector: selector,
       grid: grid,
       callbacks: {
-      deferSetup: true,
-      setup: function savviorSetup() {
-        // Set current media query.
-        self.currentMQ = mq;
-        // Register the grid element.
-        self.registerGrid(grid, selector);
-      },
-      match: function savviorMatch() {
-        // Set current media query.
-        if (self.currentMQ !== mq)
+        deferSetup: true,
+        setup: function savviorSetup() {
+          // Set current media query.
           self.currentMQ = mq;
-        // Recreate columns if it is already registered.
-        if (self.registered[selector] === true)
-          self.recreateColumns(grid, selector);
+          // Register the grid element.
+          self.registerGrid(grid, selector);
+        },
+        match: function savviorMatch() {
+          // Set current media query.
+          if (self.currentMQ !== mq)
+            self.currentMQ = mq;
+          // Recreate columns if it is already registered.
+          if (self.registered[selector] === true)
+            self.recreateColumns(grid, selector);
         },
         destroy: function() {
           return;
-      }
+        }
       },
-  };
+    };
     enquire.register(handler.mq, handler.callbacks);
     self.handlers.push(handler);
   };
 
+  /**
+   * Destroy columns and restore original DOM in grid
+   * @return {[type]} [description]
+   */
+  self.destroy = function destroy() {
+    // Unregister enquire handlers.
+    Array.prototype.forEach.call(self.handlers, function(handler) {
+      enquire.unregister(handler.mq, handler.callbacks);
+    });
+    self.currentMQ = null;
+    self.handlers = [];
+
+    // Restore columns.
+    for (var selector in self.settings) {
+      if (self.registered[selector]) {
+        var grids = document.querySelectorAll(selector);
+        Array.prototype.forEach.call(grids, function(grid) {
+          var containerFragment = document.createDocumentFragment(),
+            container = self.removeColumns(grid),
+            children = [];
+
+          Array.prototype.forEach.call(container.childNodes, function(item) {
+            children.push(item);
+          });
+          children.forEach(function(child) {
+            containerFragment.appendChild(child);
+          });
+          grid.appendChild(containerFragment);
+          grid.removeAttribute("data-columns");
+          self.registered[selector] = false;
+        });
+      }
+    }
+    // Set ready state.
+    self.ready = false;
+  };
 
   /**
    * Initialisation.
@@ -227,6 +263,9 @@ var savvior = (function(global, document, undefined) {
   return {
     init: function(settings) {
       return self.init(settings);
+    },
+    destroy: function() {
+      return self.destroy();
     },
     ready: function() {
       return self.ready;

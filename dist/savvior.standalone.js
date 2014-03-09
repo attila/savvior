@@ -656,9 +656,9 @@ if (typeof window.CustomEvent !== "function") {
       return evt;
      }
 
-    CustomEvent.prototype = window.CustomEvent.prototype;
-
     window.CustomEvent = CustomEvent;
+
+    CustomEvent.prototype = window.CustomEvent.prototype;
   })();
 }
 ;var savvior = (function(global, document, undefined) {
@@ -684,6 +684,8 @@ if (typeof window.CustomEvent !== "function") {
   self.registered = self.registered || {};
 
   self.currentMQ = self.currentMQ || null;
+
+  self.handlers = self.handlers || [];
 
 
   /**
@@ -773,9 +775,9 @@ if (typeof window.CustomEvent !== "function") {
         oldColumns = parseInt(grid.getAttribute("data-columns"));
 
       if (newColumns !== oldColumns) {
-        var savviorMatch = new CustomEvent("savviorMatch", {detail: grid});
+        var savviorMatchEvent = new CustomEvent("savvior:match", {detail: grid});
         self.addColumns(grid, self.removeColumns(grid), selector);
-        global.dispatchEvent(savviorMatch);
+        global.dispatchEvent(savviorMatchEvent);
       }
     });
   };
@@ -817,27 +819,71 @@ if (typeof window.CustomEvent !== "function") {
    * @param  String mq       The media query to match
    */
   self.register = function register(grid, selector, mq) {
-    enquire.register(mq, {
-      deferSetup: true,
-
-      setup: function savviorSetup() {
-        // Set current media query.
-        self.currentMQ = mq;
-        // Register the grid element.
-        self.registerGrid(grid, selector);
-      },
-
-      match: function savviorMatch() {
-        // Set current media query.
-        if (self.currentMQ !== mq)
+    var handler = {
+      mq: mq,
+      selector: selector,
+      grid: grid,
+      callbacks: {
+        deferSetup: true,
+        setup: function savviorSetup() {
+          // Set current media query.
           self.currentMQ = mq;
-        // Recreate columns if it is already registered.
-        if (self.registered[selector] === true)
-          self.recreateColumns(grid, selector);
-      }
-    });
+          // Register the grid element.
+          self.registerGrid(grid, selector);
+        },
+        match: function savviorMatch() {
+          // Set current media query.
+          if (self.currentMQ !== mq)
+            self.currentMQ = mq;
+          // Recreate columns if it is already registered.
+          if (self.registered[selector] === true)
+            self.recreateColumns(grid, selector);
+        },
+        destroy: function() {
+          return;
+        }
+      },
+    };
+    enquire.register(handler.mq, handler.callbacks);
+    self.handlers.push(handler);
   };
 
+  /**
+   * Destroy columns and restore original DOM in grid
+   * @return {[type]} [description]
+   */
+  self.destroy = function destroy() {
+    // Unregister enquire handlers.
+    Array.prototype.forEach.call(self.handlers, function(handler) {
+      enquire.unregister(handler.mq, handler.callbacks);
+    });
+    self.currentMQ = null;
+    self.handlers = [];
+
+    // Restore columns.
+    for (var selector in self.settings) {
+      if (self.registered[selector]) {
+        var grids = document.querySelectorAll(selector);
+        Array.prototype.forEach.call(grids, function(grid) {
+          var containerFragment = document.createDocumentFragment(),
+            container = self.removeColumns(grid),
+            children = [];
+
+          Array.prototype.forEach.call(container.childNodes, function(item) {
+            children.push(item);
+          });
+          children.forEach(function(child) {
+            containerFragment.appendChild(child);
+          });
+          grid.appendChild(containerFragment);
+          grid.removeAttribute("data-columns");
+          self.registered[selector] = false;
+        });
+      }
+    }
+    // Set ready state.
+    self.ready = false;
+  };
 
   /**
    * Initialisation.
@@ -849,7 +895,7 @@ if (typeof window.CustomEvent !== "function") {
       return false;
     }
 
-    var savviorInit = new CustomEvent("savviorInit"),
+    var savviorInitEvent = new CustomEvent("savvior:init"),
       gridElements = [];
 
     self.settings = settings;
@@ -871,12 +917,18 @@ if (typeof window.CustomEvent !== "function") {
     }
 
     self.ready = true;
-    global.dispatchEvent(savviorInit);
+    global.dispatchEvent(savviorInitEvent);
+    /* savvior-testing-code-start */
+    return self;
+    /* savvior-testing-code-end */
   };
 
   return {
     init: function(settings) {
       return self.init(settings);
+    },
+    destroy: function() {
+      return self.destroy();
     },
     ready: function() {
       return self.ready;
