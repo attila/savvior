@@ -22,6 +22,8 @@ var savvior = (function(global, document, undefined) {
 
   self.currentMQ = self.currentMQ || null;
 
+  self.handlers = self.handlers || [];
+
 
   /**
    * Create columns with the configured classes and add a list of items to them.
@@ -154,16 +156,18 @@ var savvior = (function(global, document, undefined) {
    * @param  String mq       The media query to match
    */
   self.register = function register(grid, selector, mq) {
-    enquire.register(mq, {
+    var handler = {
+      mq: mq,
+      selector: selector,
+      grid: grid,
+      callbacks: {
       deferSetup: true,
-
       setup: function savviorSetup() {
         // Set current media query.
         self.currentMQ = mq;
         // Register the grid element.
         self.registerGrid(grid, selector);
       },
-
       match: function savviorMatch() {
         // Set current media query.
         if (self.currentMQ !== mq)
@@ -171,8 +175,14 @@ var savvior = (function(global, document, undefined) {
         // Recreate columns if it is already registered.
         if (self.registered[selector] === true)
           self.recreateColumns(grid, selector);
+        },
+        destroy: function() {
+          return;
       }
-    });
+      },
+  };
+    enquire.register(handler.mq, handler.callbacks);
+    self.handlers.push(handler);
   };
 
 
