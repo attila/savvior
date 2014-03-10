@@ -2,7 +2,7 @@
   "name": "savvior",
   "description": "A Salvattore or Masonry alternative for multi column layouts.",
   "homepage": "http://savvior.org",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "MIT",
   "main": "dist/savvior.min.js",
   "ignore": [
