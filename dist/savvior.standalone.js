@@ -918,9 +918,6 @@ if (typeof window.CustomEvent !== "function") {
 
     self.ready = true;
     global.dispatchEvent(savviorInitEvent);
-    /* savvior-testing-code-start */
-    return self;
-    /* savvior-testing-code-end */
   };
 
   return {

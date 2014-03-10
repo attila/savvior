@@ -77,8 +77,9 @@ module.exports = function(grunt) {
     jasmine: {
       dist: {
         options: {
-          specs: 'tests/*Spec.js',
-          keepRunner: true,
+          specs: "tests/*Spec.js",
+          outfile: "tests/_SpecRunner.html",
+          template: "tests/templates/DefaultRunner.tmpl",
           vendor: [
             "node_modules/jquery/dist/jquery.js",
             "tests/lib/jasmine-jquery/jasmine-jquery.js",
@@ -98,12 +99,15 @@ module.exports = function(grunt) {
       },
       dist: {
         src: '<%= concat.dist.dest %>'
+      },
+      standalone: {
+        src: '<%= concat.standalone.dest %>'
       }
     },
 
     watch: {
       files: ['<%= jshint.files %>', 'tests/*.js'],
-      tasks: ['default']
+      tasks: ['test']
     }
   });
 

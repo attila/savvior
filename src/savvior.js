@@ -255,11 +255,12 @@ var savvior = (function(global, document, undefined) {
 
     self.ready = true;
     global.dispatchEvent(savviorInitEvent);
-    /* savvior-testing-code-start */
-    return self;
-    /* savvior-testing-code-end */
   };
 
+  /* savvior-testing-code-start */
+  /*jshint -W027*/
+  return self;
+  /* savvior-testing-code-end */
   return {
     init: function(settings) {
       return self.init(settings);
