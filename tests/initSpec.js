@@ -3,11 +3,15 @@
 
   describe('Init', function() {
     var selector,
-      fixture;
+      fixture,
+      children;
 
     beforeEach(function() {
       selector = "#myGrid";
       this.fixture = document.querySelector(selector);
+      children = Array.prototype.filter.call(this.fixture.childNodes, function filterElements(node) {
+        return node instanceof global.HTMLElement;
+      });
 
       spyOn(enquire, 'register').and.callFake(function(mq, handler) {
         // console.log("fake enquire.register called on: "+ mq);
@@ -32,9 +36,7 @@
     });
 
     afterEach(function() {
-      for (var mq in this.mqs) {
-        enquire.unregister(mq);
-      }
+      savvior.destroy();
     });
 
     it('is not initialised without settings', function() {
@@ -58,6 +60,7 @@
 
     it('calls register handler', function() {
       // Arrange
+      savvior.ready = false;
       spyOn(savvior, 'register').and.callThrough();
       // Act
       savvior.init(this.settings);
@@ -67,13 +70,58 @@
 
     it('dispatches event when ready', function() {
       // Arrange
-      var spyEvent = spyOnEvent(window, "savvior:init");
+      var spyEvent = spyOnEvent(global, "savvior:init");
       // Act
       savvior.init(this.settings);
       // Assert
-      expect("savvior:init").toHaveBeenTriggeredOn(window);
+      expect("savvior:init").toHaveBeenTriggeredOn(global);
     });
 
+    describe('Destroy', function() {
+
+      it('returns value when destroyed', function() {
+        // Arrange
+        savvior.init(this.settings);
+        // Act
+        var destroy = savvior.destroy();
+        var destroy2 = savvior.destroy();
+        // Assert
+        expect(destroy2).toEqual(false);
+      });
+
+      it('resets handlers when destroyed', function() {
+        // Arrange
+        savvior.init(this.settings);
+        // Act
+        savvior.destroy();
+        // Assert
+        expect(savvior.handlers).toEqual([]);
+      });
+
+      it('resets elements when destroyed', function() {
+        // Arrange
+        savvior.init(this.settings);
+        // Act
+        var destroy = savvior.destroy();
+        var childrenAfter = Array.prototype.filter.call(this.fixture.childNodes, function filterElements(node) {
+          return node instanceof global.HTMLElement;
+        });
+        // Assert
+        expect(childrenAfter).toEqual(children);
+        expect(destroy).toEqual(true);
+      });
+
+      it('dispatches event on destroy', function() {
+        // Arrange
+        var spyEvent = spyOnEvent(global, "savvior:destroy");
+        savvior.init(this.settings);
+        // Act
+        savvior.destroy();
+        // Assert
+        expect("savvior:destroy").toHaveBeenTriggeredOn(global);
+      });
+
+    });
   });
 
 }(this));

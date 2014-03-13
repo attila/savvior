@@ -37,9 +37,7 @@
     });
 
     afterEach(function() {
-      for (var mq in this.mqs) {
-        enquire.unregister(mq);
-      }
+      savvior.destroy();
     });
 
     it('adds data-columns attribute to the grid', function() {
