@@ -822,7 +822,6 @@ if (typeof window.CustomEvent !== "function") {
     var handler = {
       mq: mq,
       selector: selector,
-      grid: grid,
       callbacks: {
         deferSetup: true,
         setup: function savviorSetup() {
@@ -849,10 +848,14 @@ if (typeof window.CustomEvent !== "function") {
   };
 
   /**
-   * Destroy columns and restore original DOM in grid
-   * @return {[type]} [description]
+   * Destroy columns and restore original DOM in grid.
+   * @return Boolean The value of the ready state.
    */
   self.destroy = function destroy() {
+    if (self.ready === false) {
+      return false;
+    }
+
     // Unregister enquire handlers.
     Array.prototype.forEach.call(self.handlers, function(handler) {
       enquire.unregister(handler.mq, handler.callbacks);
@@ -877,12 +880,16 @@ if (typeof window.CustomEvent !== "function") {
           });
           grid.appendChild(containerFragment);
           grid.removeAttribute("data-columns");
-          self.registered[selector] = false;
+          delete self.registered[selector];
         });
       }
     }
     // Set ready state.
     self.ready = false;
+    var savviorDestroyEvent = new CustomEvent("savvior:destroy");
+    global.dispatchEvent(savviorDestroyEvent);
+
+    return !self.ready;
   };
 
   /**
@@ -892,6 +899,9 @@ if (typeof window.CustomEvent !== "function") {
    */
   self.init = function init(settings) {
     if (typeof settings === "undefined") {
+      return false;
+    }
+    if (self.ready === true) {
       return false;
     }
 
@@ -918,6 +928,8 @@ if (typeof window.CustomEvent !== "function") {
 
     self.ready = true;
     global.dispatchEvent(savviorInitEvent);
+
+    return self.ready;
   };
 
   return {
