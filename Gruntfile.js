@@ -105,6 +105,15 @@ module.exports = function(grunt) {
       }
     },
 
+    umd: {
+      dist: {
+        src: '<%= concat.dist.dest %>',
+        amdModuleId: '<%= pkg.name %>',
+        objectToExport: '<%= pkg.name %>',
+        globalAlias: '<%= pkg.name %>'
+      },
+    },
+
     watch: {
       files: ['<%= jshint.files %>', 'tests/*.js'],
       tasks: ['test']
@@ -117,7 +126,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-strip-code');
+  grunt.loadNpmTasks('grunt-umd');
 
   grunt.registerTask('test', ['jshint', 'jasmine']);
-  grunt.registerTask('default', ['test', 'concat', 'strip_code', 'uglify']);
+  grunt.registerTask('default', ['test', 'concat', 'strip_code', 'umd', 'uglify']);
 };

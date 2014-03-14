@@ -1,3 +1,15 @@
+(function(root, factory) {
+    if(typeof exports === 'object') {
+        module.exports = factory();
+    }
+    else if(typeof define === 'function' && define.amd) {
+        define('savvior', [], factory);
+    }
+    else {
+        root['savvior'] = factory();
+    }
+}(this, function() {
+
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
 
@@ -329,3 +341,8 @@ if (typeof window.CustomEvent !== "function") {
   };
 
 })(window, window.document);
+
+
+return savvior;
+
+}));

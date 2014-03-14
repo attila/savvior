@@ -19,6 +19,7 @@
     "grunt-contrib-uglify": "~0.4.0",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-strip-code": "~0.1.2",
+    "grunt-umd": "~1.7.3",
     "jquery": "~2.1.0"
   },
   "repository": {
