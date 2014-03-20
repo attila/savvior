@@ -1,21 +1,16 @@
 module.exports = function(grunt) {
-  "use strict";
+  'use strict';
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
     meta: {
       banner: {
-        dist:       '/*!\n'+
-                    ' * <%= pkg.name %> v<%= pkg.version %> - <%= pkg.description %>\n'+
-                    ' * <%= pkg.homepage %>\n'+
-                    ' * <%= pkg.repository.url %>\n'+
-                    ' */\n',
-        standalone: '/*!\n'+
-                    ' * <%= pkg.name %> v<%= pkg.version %> standalone - <%= pkg.description %>\n'+
-                    ' * <%= pkg.homepage %>\n'+
-                    ' * <%= pkg.repository.url %>\n'+
-                    ' */\n',
+        dist: '/*!\n'+
+               ' * <%= pkg.name %> v<%= pkg.version %> - <%= pkg.description %>\n'+
+               ' * <%= pkg.homepage %>\n'+
+               ' * <%= pkg.repository.url %>\n'+
+               ' */\n'
       },
       outputDir: 'dist',
       output : '<%= meta.outputDir %>/<%= pkg.name %>',
@@ -24,23 +19,16 @@ module.exports = function(grunt) {
 
     concat: {
       options: {
-        separator: ';'
+        separator: ''
       },
       dist: {
         src: [
-         'src/includes/requestAnimationFrame.js',
-         'src/includes/customEvent.js',
-         'src/*.js'],
+          'src/Helpers.js',
+          'src/Grid.js',
+          'src/GridHandler.js',
+          'src/GridDispatch.js'
+        ],
         dest: '<%= meta.output %>.js'
-      },
-      standalone: {
-        src: [
-         'src/includes/media.match.js',
-         'src/includes/enquire.js',
-         'src/includes/requestAnimationFrame.js',
-         'src/includes/customEvent.js',
-         'src/*.js'],
-        dest: '<%= meta.output %>.standalone.js'
       }
     },
 
@@ -55,37 +43,28 @@ module.exports = function(grunt) {
         files: {
           '<%= meta.outputDir %>/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
         }
-      },
-      standalone: {
-        options: {
-          banner: '<%= meta.banner.standalone %>'
-        },
-        files: {
-          '<%= meta.outputDir %>/<%= pkg.name %>.standalone.min.js': ['<%= concat.standalone.dest %>']
-        }
       }
     },
 
     jshint: {
-      files: ['Gruntfile.js', 'src/*.js'],
       options: {
-        loopfunc: true,
-        strict: true
-      }
+        jshintrc : '.jshintrc'
+      },
+      files: ['Gruntfile.js', '<%= concat.dist.src %>']
     },
 
     jasmine: {
       dist: {
         options: {
-          specs: "tests/*Spec.js",
-          outfile: "tests/_SpecRunner.html",
-          template: "tests/templates/DefaultRunner.tmpl",
+          specs: 'tests/*Spec.js',
+          outfile: 'tests/_SpecRunner.html',
+          template: 'tests/templates/DefaultRunner.tmpl',
           vendor: [
-            "node_modules/jquery/dist/jquery.js",
-            "tests/lib/jasmine-jquery/jasmine-jquery.js",
-            "src/includes/enquire.js",
-            "src/includes/requestAnimationFrame.js",
-            "src/includes/customEvent.js"
+            'node_modules/jquery/dist/jquery.js',
+            'tests/lib/jasmine-jquery/jasmine-jquery.js',
+            'src/includes/enquire.js',
+            'src/includes/requestAnimationFrame.js',
+            'src/includes/customEvent.js'
           ]
         },
         src: 'src/<%= pkg.name %>.js'
@@ -99,9 +78,6 @@ module.exports = function(grunt) {
       },
       dist: {
         src: '<%= concat.dist.dest %>'
-      },
-      standalone: {
-        src: '<%= concat.standalone.dest %>'
       }
     },
 
@@ -109,14 +85,18 @@ module.exports = function(grunt) {
       dist: {
         src: '<%= concat.dist.dest %>',
         amdModuleId: '<%= pkg.name %>',
-        objectToExport: '<%= pkg.name %>',
-        globalAlias: '<%= pkg.name %>'
+        objectToExport: 'new GridDispatch()',
+        globalAlias: '<%= pkg.name %>',
+        indent: '  ',
+        deps: {
+          'default': ['enquire'],
+        }
       },
     },
 
     watch: {
       files: ['<%= jshint.files %>', 'tests/*.js'],
-      tasks: ['test']
+      tasks: ['default']
     }
   });
 
@@ -128,6 +108,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-strip-code');
   grunt.loadNpmTasks('grunt-umd');
 
-  grunt.registerTask('test', ['jshint', 'jasmine']);
+  grunt.registerTask('test', ['jshint']);
   grunt.registerTask('default', ['test', 'concat', 'strip_code', 'umd', 'uglify']);
 };
