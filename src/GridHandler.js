@@ -86,7 +86,6 @@ GridHandler.prototype = {
    */
   gridSetup: function(mq) {
     if (!this.grid.status) {
-      // console.log('▶︎ ◉ gridSetup(): '+ this.selector +' on '+ mq +', columns: '+ this.options[mq].columns);
       this.grid.setup(this.options[mq].columns);
     }
   },
@@ -98,7 +97,6 @@ GridHandler.prototype = {
    * @param  {[type]} mq The current query
    */
   gridMatch: function(mq) {
-    // console.log('  ◎ gridMatch(): '+ this.selector +' on '+ mq +', columns: '+ this.options[mq].columns);
     this.grid.redraw(this.options[mq].columns);
   },
 

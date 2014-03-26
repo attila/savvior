@@ -40,7 +40,6 @@ Grid.prototype = {
       this.addColumns(items, columns);
 
       this.status = true;
-      // console.log('  ✔︎ Grid.setup(): done.');
     }
 
     return this;
@@ -138,12 +137,8 @@ Grid.prototype = {
         var matchEvent = new CustomEvent('savvior:redraw', {detail: self.element});
         self.addColumns(self.removeColumns(), newColumns);
         window.dispatchEvent(matchEvent);
-        // console.log('  ✔︎ redraw: redrawn to '+ newColumns);
       });
     }
-    // else {
-    //   console.log('  ✘ recreateColumns: no redraw needed.');
-    // }
   },
 
 
@@ -176,7 +171,6 @@ Grid.prototype = {
 
       window.dispatchEvent(restoreEvent);
 
-      // console.log('  ✔︎ restore: done');
       return self;
     });
   }
