@@ -1,7 +1,8 @@
 /**
- * Allows for registration of grid handlers.
- * Manages the state of the grid handler.
+ * Implements the top level registration of grid handlers and manages their
+ * states.
  *
+ * @param {Object} GridDispatch.grids  Collection of grid handlers
  * @constructor
  */
 function GridDispatch() {
@@ -14,6 +15,14 @@ function GridDispatch() {
 
 GridDispatch.prototype = {
 
+  /**
+   * Registers a single grid handler
+   *
+   * @param  {String} selector The selector of the grid element
+   * @param  {Object} options  Defines the number of columns a grid should have
+   *   for each media query registered.
+   * @return {Object}          The dispatch object instance
+   */
   init: function(selector, options) {
     if (typeof options === undefined) {
       return false;
@@ -34,18 +43,52 @@ GridDispatch.prototype = {
     return this;
   },
 
+  /**
+   * Restores one or all of the grids into their original state
+   *
+   * @param  {String} selector Optional. The selector of the grid used in init()
+   * @return {Object}          Returns the GridDispatch object instance if
+   *   selector is provided or if omitted, false if the given selector does not
+   *   exist.
+   */
   destroy: function(selector) {
+    if (selector === undefined) {
+      for (var key in this.grids) {
+        this.grids[key].unregister();
+        delete this.grids[key];
+      }
+      return this;
+    }
 
     if (!this.grids[selector]) {
-      return false;
+      return;
     }
+
     this.grids[selector].unregister();
     delete this.grids[selector];
 
     return this;
   },
 
+  /**
+   * Tells if one or all the grids are initialised
+   *
+   * @param  {String} selector Optional. The selector of the grid used in init()
+   * @return {Boolean}         If selector is given, returns a boolean value, or
+   *   undefined if selector does not exist. If called without an argument, an
+   *   array of ready grids is returned.
+   */
   ready: function(selector) {
+    if (selector === undefined) {
+      var grids = [];
+      for (var key in this.grids) {
+        if (this.grids[key].ready) {
+          grids.push(key);
+        }
+      }
+      return grids;
+    }
+
     if (!this.grids[selector]) {
       return;
     }
