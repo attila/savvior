@@ -24,11 +24,11 @@ GridDispatch.prototype = {
    * @return {Object}          The dispatch object instance
    */
   init: function(selector, options) {
-    if (typeof options === undefined) {
+    if (options === undefined || options === undefined) {
       return false;
     }
 
-    var initEvent = new CustomEvent('savvior:init'),
+    var event = new CustomEvent('savvior:init'),
       grids = this.grids;
 
     if (!grids[selector]) {
@@ -38,7 +38,7 @@ GridDispatch.prototype = {
 
     grids[selector].register(options);
 
-    window.dispatchEvent(initEvent);
+    window.dispatchEvent(event);
 
     return this;
   },
@@ -52,11 +52,14 @@ GridDispatch.prototype = {
    *   exist.
    */
   destroy: function(selector) {
+    var event = new CustomEvent('savvior:destroy');
+
     if (selector === undefined) {
       for (var key in this.grids) {
         this.grids[key].unregister();
         delete this.grids[key];
       }
+      window.dispatchEvent(event);
       return this;
     }
 
@@ -67,6 +70,7 @@ GridDispatch.prototype = {
     this.grids[selector].unregister();
     delete this.grids[selector];
 
+    window.dispatchEvent(event);
     return this;
   },
 
