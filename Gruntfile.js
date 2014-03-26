@@ -62,22 +62,10 @@ module.exports = function(grunt) {
           vendor: [
             'node_modules/jquery/dist/jquery.js',
             'tests/lib/jasmine-jquery/jasmine-jquery.js',
-            'src/includes/enquire.js',
-            'src/includes/requestAnimationFrame.js',
-            'src/includes/customEvent.js'
+            'tests/lib/enquirejs/enquire.js'
           ]
         },
-        src: 'src/<%= pkg.name %>.js'
-      }
-    },
-
-    strip_code: {
-      options: {
-        start_comment: 'savvior-testing-code-start',
-        end_comment: 'savvior-testing-code-end',
-      },
-      dist: {
-        src: '<%= concat.dist.dest %>'
+        src: 'src/*.js'
       }
     },
 
@@ -105,9 +93,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-strip-code');
   grunt.loadNpmTasks('grunt-umd');
 
-  grunt.registerTask('test', ['jshint']);
-  grunt.registerTask('default', ['test', 'concat', 'strip_code', 'umd', 'uglify']);
+  grunt.registerTask('test', ['jshint', 'jasmine']);
+  grunt.registerTask('default', ['test', 'concat', 'umd', 'uglify']);
 };
