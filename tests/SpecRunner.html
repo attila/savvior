@@ -14,18 +14,33 @@
   <!-- include source files here... -->
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
   <script type="text/javascript" src="lib/jasmine-jquery/jasmine-jquery.js"></script>
-  <script type="text/javascript" src="../src/includes/enquire.js"></script>
-  <script type="text/javascript" src="../src/includes/requestAnimationFrame.js"></script>
-  <script type="text/javascript" src="../src/includes/customEvent.js"></script>
-  <script type="text/javascript" src="../src/savvior.js"></script>
+  <script type="text/javascript" src="lib/enquirejs/enquire.js"></script>
+  <script type="text/javascript" src="../src/Helpers.js"></script>
+  <script type="text/javascript" src="../src/GridDispatch.js"></script>
+  <script type="text/javascript" src="../src/GridHandler.js"></script>
+  <script type="text/javascript" src="../src/Grid.js"></script>
 
   <!-- include spec files here... -->
-  <script type="text/javascript" src="initSpec.js"></script>
-  <script type="text/javascript" src="gridSpec.js"></script>
+  <script type="text/javascript" src="GridDispatcherSpec.js"></script>
+  <script type="text/javascript" src="GridHandlerSpec.js"></script>
+  <script type="text/javascript" src="GridSpec.js"></script>
 </head>
 
 <body>
 <div id="myGrid">
+  <div class="box"><span></span></div>
+  <div class="box"><span></span></div>
+  <div class="box"><span></span></div>
+  <div class="box"><span></span></div>
+  <div class="box"><span></span></div>
+  <div class="box"><span></span></div>
+  <div class="box"><span></span></div>
+  <div class="box"><span></span></div>
+  <div class="box"><span></span></div>
+  <div class="box"><span></span></div>
+  <div class="box"><span></span></div>
+</div>
+<div id="anotherGrid">
   <div class="box"><span></span></div>
   <div class="box"><span></span></div>
   <div class="box"><span></span></div>
