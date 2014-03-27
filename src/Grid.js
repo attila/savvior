@@ -131,14 +131,20 @@ Grid.prototype = {
    *   element to.
    */
   redraw: function(newColumns) {
-    var self = this;
-    if (self.columns !== newColumns) {
-      window.requestAnimationFrame(function() {
-        var matchEvent = new CustomEvent('savvior:redraw', {detail: self.element});
+    var self = this,
+      eventDetails = {
+        element: self.element,
+        from: self.columns,
+        to: newColumns
+      },
+      matchEvent = new CustomEvent('savvior:redraw', {detail: eventDetails});
+
+    window.requestAnimationFrame(function() {
+      if (self.columns !== newColumns) {
         self.addColumns(self.removeColumns(), newColumns);
-        window.dispatchEvent(matchEvent);
-      });
-    }
+      }
+      window.dispatchEvent(matchEvent);
+    });
   },
 
 
@@ -152,13 +158,17 @@ Grid.prototype = {
       return;
     }
 
-    var self = this;
+    var self = this,
+      eventDetails = {
+        element: self.element,
+        from: self.columns
+      };
 
     window.requestAnimationFrame(function() {
       var fragment = document.createDocumentFragment(),
         container = self.removeColumns(),
         children = [],
-        restoreEvent = new CustomEvent('savvior:restore', {detail: self.element});
+        restoreEvent = new CustomEvent('savvior:restore', {detail: eventDetails});
 
       each(container.childNodes, function(item) {
         children.push(item);
