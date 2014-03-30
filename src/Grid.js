@@ -19,30 +19,27 @@ Grid.prototype = {
    * Set up the grid element and add columns
    *
    * @param  {Integer} columns The number of columns to create on init
-   * @return {Object}          The Grid object instance
+   * @param  {Function} callback  Optional. Callback function to call when done
    */
-  setup: function(columns) {
-    // Do not act on hidden elements
-    if (window.getComputedStyle(this.element).display === 'none') {
-      return;
-    }
-
-    // Only process the grid once.
-    if (!this.status) {
+  setup: function(columns, callback) {
+    // Do not act on hidden elements or if set already
+    if (!this.status || window.getComputedStyle(this.element).display !== 'none') {
       // Retrieve the list of items from the grid itself.
-      var range = document.createRange(),
+      var self = this,
+        range = document.createRange(),
         items = document.createElement('div');
 
       range.selectNodeContents(this.element);
       items.appendChild(range.extractContents());
 
+      window.requestAnimationFrame(function() {
       addToDataset(items, 'columns', 0);
-      this.addColumns(items, columns);
+        self.addColumns(items, columns);
+        self.status = true;
 
-      this.status = true;
+        isFunction(callback) && callback(self);
+      });
     }
-
-    return this;
   },
 
 
@@ -127,10 +124,12 @@ Grid.prototype = {
    * Remove all the columns from the grid, and add them again if the number of
    * columns have changed.
    *
-   * @param  {Integer} newColumns The number of columns to transform the Grid
+   * @param  {[type]}   newColumns The number of columns to transform the Grid
    *   element to.
+   * @param  {Function} callback   Optional. Callback function to call when done
+   * @return {[type]}              [description]
    */
-  redraw: function(newColumns) {
+  redraw: function(newColumns, callback) {
     var self = this,
       eventDetails = {
         element: self.element,
@@ -143,7 +142,9 @@ Grid.prototype = {
       if (self.columns !== newColumns) {
         self.addColumns(self.removeColumns(), newColumns);
       }
+
       window.dispatchEvent(matchEvent);
+      isFunction(callback) && callback(self);
     });
   },
 
@@ -151,11 +152,12 @@ Grid.prototype = {
   /**
    * Restore the Grid element to its original state
    *
-   * @return {Object} The Grid object instance
+   * @param  {Function} callback  Optional. Callback function to call when done
    */
-  restore: function() {
+  restore: function(callback) {
     if (!this.status) {
-      return;
+      isFunction(callback) && callback(false);
+      return false;
     }
 
     var self = this,
@@ -179,10 +181,9 @@ Grid.prototype = {
       self.element.appendChild(fragment);
       self.element.removeAttribute('data-columns');
 
-      window.dispatchEvent(restoreEvent);
 
-      return self;
+      window.dispatchEvent(restoreEvent);
+      isFunction(callback) && callback(self);
     });
   }
-
 };

@@ -28,7 +28,7 @@ GridDispatch.prototype = {
       return false;
     }
 
-    var event = new CustomEvent('savvior:init'),
+    var evt = new CustomEvent('savvior:init'),
       grids = this.grids;
 
     if (!grids[selector]) {
@@ -38,7 +38,7 @@ GridDispatch.prototype = {
 
     grids[selector].register(options);
 
-    window.dispatchEvent(event);
+    window.dispatchEvent(evt);
 
     return this;
   },
@@ -46,32 +46,29 @@ GridDispatch.prototype = {
   /**
    * Restores one or all of the grids into their original state
    *
-   * @param  {String} selector Optional. The selector of the grid used in init()
-   * @return {Object}          Returns the GridDispatch object instance if
-   *   selector is provided or if omitted, false if the given selector does not
-   *   exist.
+   * @param  {Array} selector     The selectors of the grids to destroy as given
+   *   during the init call.
+   * @param  {Function} callback  Optional. Callback function to call when done
    */
-  destroy: function(selector) {
-    var event = new CustomEvent('savvior:destroy');
+  destroy: function(selectors, callback) {
+    var evt = new CustomEvent('savvior:destroy'),
+      self = this,
+      grids = (selectors === undefined || isEmpty(selectors)) ? Object.keys(this.grids) : selectors,
+      total = grids.length,
+      counter = 0,
+      done = function(args) {
+        delete self.grids[grids[counter]];
+        if (++counter === total) {
+          window.dispatchEvent(evt);
+          isFunction(callback) && callback(args);
+        }
+      };
 
-    if (selector === undefined) {
-      for (var key in this.grids) {
-        this.grids[key].unregister();
-        delete this.grids[key];
+    each(grids, function(selector) {
+      if (self.grids[selector] !== undefined) {
+        self.grids[selector].unregister(done);
       }
-      window.dispatchEvent(event);
-      return this;
-    }
-
-    if (!this.grids[selector]) {
-      return;
-    }
-
-    this.grids[selector].unregister();
-    delete this.grids[selector];
-
-    window.dispatchEvent(event);
-    return this;
+    });
   },
 
   /**
@@ -90,11 +87,11 @@ GridDispatch.prototype = {
           grids.push(key);
         }
       }
-      return grids;
+      return (grids.length > 0) ? grids : false;
     }
 
     if (!this.grids[selector]) {
-      return;
+      return false;
     }
 
     return this.grids[selector].ready;

@@ -41,6 +41,28 @@ function isArray(target) {
   return Object.prototype.toString.apply(target) === '[object Array]';
 }
 
+/**
+ * Helper function for determining whether target object is a function
+ *
+ * @param target the object under test
+ * @return {Boolean} true if function, false otherwise
+ */
+function isFunction(target) {
+  return typeof target === 'function';
+}
+
+/**
+ * Helper function to determine if an object or array is empty.
+ *
+ * @param  {[type]}  obj The object or array to check.
+ * @return {Boolean}     TRUE if empty, FALSE if not.
+ */
+function isEmpty(obj, p) {
+  for (p in obj) {
+    return !1;
+  }
+  return !0;
+}
 
 /**
  * CustomEvent polyfill

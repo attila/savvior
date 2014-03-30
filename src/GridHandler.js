@@ -107,15 +107,19 @@ GridHandler.prototype = {
    * This unregisters any previously registered enquire handlers and clears up
    * the object instance
    */
-  unregister: function() {
+  unregister: function(callback) {
     each(this.queryHandlers, function(h) {
       enquire.unregister(h.mq, h.callbacks);
     });
 
-    this.grid.restore();
-    // Cleanup
-    this.queryHandlers = [];
-    delete this.grid;
-    this.ready = false;
+    var self = this;
+    this.grid.restore(function() {
+      // Cleanup
+      self.queryHandlers = [];
+      delete self.grid;
+      self.ready = false;
+
+      isFunction(callback) && callback(self);
+    });
   }
 };
