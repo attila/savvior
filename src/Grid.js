@@ -18,7 +18,7 @@ Grid.prototype = {
   /**
    * Set up the grid element and add columns
    *
-   * @param  {Integer} columns The number of columns to create on init
+   * @param  {Integer} columns    The number of columns to create on init
    * @param  {Function} callback  Optional. Callback function to call when done
    */
   setup: function(columns, callback) {
@@ -33,7 +33,7 @@ Grid.prototype = {
       items.appendChild(range.extractContents());
 
       window.requestAnimationFrame(function() {
-      addToDataset(items, 'columns', 0);
+        addToDataset(items, 'columns', 0);
         self.addColumns(items, columns);
         self.status = true;
 
@@ -45,9 +45,6 @@ Grid.prototype = {
 
   /**
    * Create columns with the configured classes and add a list of items to them.
-   *
-   * @param Object  items    The column element object
-   * @param Integer columns  The column element object
    */
   addColumns: function(items, columns) {
     var columnClasses = ['column', 'size-1of'+ columns],

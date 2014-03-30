@@ -56,7 +56,11 @@ module.exports = function(grunt) {
     jasmine: {
       dist: {
         options: {
-          specs: 'tests/*Spec.js',
+          specs: [
+            'tests/gridSpec.js',
+            'tests/GridHandlerSpec.js',
+            'tests/GridDispatchSpec.js',
+          ],
           outfile: 'tests/_SpecRunner.html',
           template: 'tests/templates/DefaultRunner.tmpl',
           vendor: [

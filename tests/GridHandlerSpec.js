@@ -1,10 +1,11 @@
-/*global jasmine: true, jQuery: true, describe: true, beforeEach: true, it: true, expect: true, spyOn: true */
-(function(global, $) {
+/*global jasmine: true, describe: true, beforeEach: true, afterEach: true, it: true, xit: true, expect: true, spyOn: true */
+(function() {
   'use strict';
 
   var handler;
 
   describe('GridHandler', function() {
+
     beforeEach(function() {
       this.selector = '#myGrid';
       this.settings = {
@@ -29,14 +30,20 @@
       handler = new GridHandler(this.selector, this.settings);
     });
 
-    it('does not process hidden elements', function() {
-      // Arrange
-      $(this.selector).hide();
-      // Act & Assert
-      expect(handler.register()).toBeUndefined();
-      // Cleanup
-      $(this.selector).show();
+    afterEach(function(done) {
+      if (handler.selector) {
+        handler.unregister(function() {
+          handler = undefined;
+          done();
+        });
+      }
+      else {
+        handler = undefined;
+        done();
+      }
     });
+
+    it('does not process hidden elements');
 
     it('constructs enquire handlers', function() {
       // Act
@@ -62,10 +69,8 @@
     });
 
     it('returns instance', function() {
-      // Act
-      var result = handler.register();
-      // Assert
-      expect(result).toEqual(jasmine.objectContaining({
+      // Act & Assert
+      expect(handler.register()).toEqual(jasmine.objectContaining({
         ready: true
       }));
     });
@@ -94,18 +99,19 @@
       expect(handler.grid.redraw.calls.count()).toEqual(1);
     });
 
-    it('unregisters handlers', function() {
+    xit('unregisters handlers', function(done) {
       // Arrange
       handler.register();
       var length = handler.queryHandlers.length;
-      // Act
-      handler.unregister();
-      // Assert
-      expect(handler.queryHandlers.length).toBe(0);
-      expect(handler.ready).toBe(false);
-      expect(handler.grid).toBeUndefined();
-      expect(enquire.unregister.calls.count()).toEqual(length);
+      // Act & Assert
+      handler.unregister(function() {
+        expect(handler.queryHandlers.length).toBe(0);
+        expect(handler.ready).toBe(false);
+        expect(handler.grid).toBeUndefined();
+        expect(enquire.unregister.calls.count()).toEqual(length);
+        done();
+      });
     });
   });
 
-}(this, jQuery));
+}(this));
