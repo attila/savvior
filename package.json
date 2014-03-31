@@ -27,5 +27,8 @@
   },
   "bugs": {
     "url": "https://github.com/attila/savvior/issues"
+  },
+  "scripts": {
+    "test": "grunt test"
   }
 }
