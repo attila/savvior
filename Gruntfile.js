@@ -57,7 +57,7 @@ module.exports = function(grunt) {
       dist: {
         options: {
           specs: [
-            'tests/gridSpec.js',
+            'tests/GridSpec.js',
             'tests/GridHandlerSpec.js',
             'tests/GridDispatchSpec.js',
           ],

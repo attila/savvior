@@ -1,4 +1,4 @@
-/*global jasmine: true, describe: true, beforeEach: true, afterEach: true, it: true, xit: true, expect: true, spyOn: true */
+/*global jasmine: true, describe: true, beforeEach: true, it: true, expect: true, spyOn: true */
 (function() {
   'use strict';
 
@@ -15,7 +15,6 @@
       };
 
       spyOn(enquire, 'register').and.callFake(function(mq, handler) {
-        // console.log('fake enquire.register called on: '+ mq);
         return {
           mq: mq,
           handler: handler
@@ -23,24 +22,10 @@
       });
 
       spyOn(enquire, 'unregister').and.callFake(function(handler) {
-        // console.log('fake enquire.register called on: '+ mq);
         return handler;
       });
 
       handler = new GridHandler(this.selector, this.settings);
-    });
-
-    afterEach(function(done) {
-      if (handler.selector) {
-        handler.unregister(function() {
-          handler = undefined;
-          done();
-        });
-      }
-      else {
-        handler = undefined;
-        done();
-      }
     });
 
     it('does not process hidden elements');
@@ -99,17 +84,18 @@
       expect(handler.grid.redraw.calls.count()).toEqual(1);
     });
 
-    xit('unregisters handlers', function(done) {
+    it('unregisters handlers', function(done) {
       // Arrange
       handler.register();
-      var length = handler.queryHandlers.length;
-      // Act & Assert
-      handler.unregister(function() {
-        expect(handler.queryHandlers.length).toBe(0);
-        expect(handler.ready).toBe(false);
-        expect(handler.grid).toBeUndefined();
-        expect(enquire.unregister.calls.count()).toEqual(length);
-        done();
+      handler.grid.setup(2, function() {
+        var length = handler.queryHandlers.length;
+        // Act & Assert
+        handler.unregister(function() {
+          expect(handler.queryHandlers.length).toBe(0);
+          expect(handler.ready).toBe(false);
+          expect(enquire.unregister.calls.count()).toEqual(length);
+          done();
+        });
       });
     });
   });

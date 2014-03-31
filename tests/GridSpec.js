@@ -28,12 +28,13 @@
       });
     });
 
-    it('adds columns to grid', function() {
+    it('adds columns to grid', function(done) {
       // Arrange
-      var newChildren = $(element).children().length;
+      var newChildren = $(selector).children().length;
       // Assert
       expect(newChildren).toEqual(columns);
       expect(newChildren).not.toEqual(children);
+      done();
     });
 
     it('adds class names to grid columns', function() {
