@@ -1,31 +1,45 @@
 # Savvior
 
-[![Build Status](https://img.shields.io/travis/attila/savvior/master.svg)](https://travis-ci.org/attila/savvior)
+[![Build Status](https://travis-ci.org/attila/savvior.svg?branch=prototype)](https://travis-ci.org/attila/savvior)
 
-A Javascript solution for multicolumn layouts, alternative to Salvattore or Masonry, but without CSS driven configuration or absolute CSS positioning. A large part of the code is heavily inspired by the excellent [Salvattore](http://salvattore.com), however it provides solutions to many of its quirks.
+A Javascript solution for multicolumn layouts, an alternative to Salvattore or Masonry, without CSS driven configuration or absolute CSS positioning. A large part of the code is heavily inspired by the excellent [Salvattore](http://salvattore.com), however it fixes many of its quirks.
 
 ## Features
 
-* __No requirements:__ Savvior can be used as a standalone script or, if the prerequisite scripts are already loaded, the script itself.
-* __Requirements:__ Savvior relies on `window.matchMedia` and [enquire.js](http://wicky.nillia.ms/enquire.js/).
+* __Requirements:__ Savvior depends on on `window.matchMedia` and [enquire.js](http://wicky.nillia.ms/enquire.js/).
 * __Integrates easily:__ No automatic execution, init the script when YOU think it should happen. For further integration, custom events are dispatched after initialisation or redrawing the layout.
-* __Single object as configuration:__ No CSS-driven configuration can make parsing CSS on a CDN troubled, just pass a single object to init() and it's done.
-* __Lightweight:__ ~1.4KB minified and gzipped (the standalone variant is ~3.4 KB)
-* __Wide browser support:__ most modern browsers and IE9+
+* __Sensible configuration:__ No CSS-driven configuration can make parsing CSS on a CDN troubled, just pass the element selector and a single config object to init() and it's done.
+* __Lightweight:__ ~1.95KB minified and gzipped
+* __Wide browser support:__ most modern devices/browsers and IE9+
 
 ## Usage
 
-Use the standalone version if you do not already load a polyfill for matchMedia and enquire.
-
 #### Load it synchronously
 
+Just add these before your closing `<body>` tag.
+
 ````html
+<!--[if IE 9]>
+<script src="/path/to/media-match.js"></script>
+<![endif]-->
+<script src="/path/to/enquire.js"></script>
 <script src="/path/to/savvior.js"></script>
 ````
 
 #### Load it asynchronously
 
-In this quick and dirty example, using Modernizr:
+In the `<head>`:
+
+##### using as an AMD module, for example via Require.js
+
+````javascript
+require(['savvior', 'domReady!'], function(savvior) {
+  // Enquire is a dependency of savvior so you can initialize it right here.
+  // You'll need to load your own polyfills though.
+});
+````
+
+##### using Modernizr
 
 ````html
 <script type="text/javascript">
@@ -47,17 +61,38 @@ Modernizr.load([{
 </script>
 ````
 
+
 #### Initialise
 
 ````javascript
-  savvior.init({
-    "#myGrid": {
-      "screen and (max-width: 20em)": { columns: 2 },
-      "screen and (min-width: 20em) and (max-width: 40em)": { columns: 3 },
-      "screen and (min-width: 40em)": { columns: 4 },
-    }
+  savvior.init("#myGrid", {
+    "screen and (max-width: 20em)": { columns: 2 },
+    "screen and (min-width: 20em) and (max-width: 40em)": { columns: 3 },
+    "screen and (min-width: 40em)": { columns: 4 },
   });
 ````
+
+#### Get status
+
+````javascript
+  savvior.ready();
+  // returns ["#myGrid"]
+  savvior.ready("#myGrid");
+  // returns true
+````
+
+#### Destroy
+
+````javascript
+  // destroy all instances
+  savvior.destroy();
+  // destroy specific instances
+  savvior.ready(["#myGrid", "#anotherGrid"]);
+````
+
+#### And more...
+
+Detailed documentation coming soon!
 
 ## Development
 

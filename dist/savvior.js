@@ -53,6 +53,28 @@
     return Object.prototype.toString.apply(target) === '[object Array]';
   }
   
+  /**
+   * Helper function for determining whether target object is a function
+   *
+   * @param target the object under test
+   * @return {Boolean} true if function, false otherwise
+   */
+  function isFunction(target) {
+    return typeof target === 'function';
+  }
+  
+  /**
+   * Helper function to determine if an object or array is empty.
+   *
+   * @param  {[type]}  obj The object or array to check.
+   * @return {Boolean}     TRUE if empty, FALSE if not.
+   */
+  function isEmpty(obj, p) {
+    for (p in obj) {
+      return !1;
+    }
+    return !0;
+  }
   
   /**
    * CustomEvent polyfill
@@ -126,40 +148,33 @@
     /**
      * Set up the grid element and add columns
      *
-     * @param  {Integer} columns The number of columns to create on init
-     * @return {Object}          The Grid object instance
+     * @param  {Integer} columns    The number of columns to create on init
+     * @param  {Function} callback  Optional. Callback function to call when done
      */
-    setup: function(columns) {
-      // Do not act on hidden elements
-      if (window.getComputedStyle(this.element).display === 'none') {
-        return;
-      }
-  
-      // Only process the grid once.
-      if (!this.status) {
+    setup: function(columns, callback) {
+      // Do not act on hidden elements or if set already
+      if (!this.status || window.getComputedStyle(this.element).display !== 'none') {
         // Retrieve the list of items from the grid itself.
-        var range = document.createRange(),
+        var self = this,
+          range = document.createRange(),
           items = document.createElement('div');
   
         range.selectNodeContents(this.element);
         items.appendChild(range.extractContents());
   
-        addToDataset(items, 'columns', 0);
-        this.addColumns(items, columns);
+        window.requestAnimationFrame(function() {
+          addToDataset(items, 'columns', 0);
+          self.addColumns(items, columns);
+          self.status = true;
   
-        this.status = true;
-        // console.log('  ✔︎ Grid.setup(): done.');
+          isFunction(callback) && callback(self);
+        });
       }
-  
-      return this;
     },
   
   
     /**
      * Create columns with the configured classes and add a list of items to them.
-     *
-     * @param Object  items    The column element object
-     * @param Integer columns  The column element object
      */
     addColumns: function(items, columns) {
       var columnClasses = ['column', 'size-1of'+ columns],
@@ -236,42 +251,53 @@
      * Remove all the columns from the grid, and add them again if the number of
      * columns have changed.
      *
-     * @param  {Integer} newColumns The number of columns to transform the Grid
+     * @param  {[type]}   newColumns The number of columns to transform the Grid
      *   element to.
+     * @param  {Function} callback   Optional. Callback function to call when done
+     * @return {[type]}              [description]
      */
-    redraw: function(newColumns) {
-      var self = this;
-      if (self.columns !== newColumns) {
-        window.requestAnimationFrame(function() {
-          var matchEvent = new CustomEvent('savvior:redraw', {detail: self.element});
+    redraw: function(newColumns, callback) {
+      var self = this,
+        eventDetails = {
+          element: self.element,
+          from: self.columns,
+          to: newColumns
+        },
+        matchEvent = new CustomEvent('savvior:redraw', {detail: eventDetails});
+  
+      window.requestAnimationFrame(function() {
+        if (self.columns !== newColumns) {
           self.addColumns(self.removeColumns(), newColumns);
-          window.dispatchEvent(matchEvent);
-          // console.log('  ✔︎ redraw: redrawn to '+ newColumns);
-        });
-      }
-      // else {
-      //   console.log('  ✘ recreateColumns: no redraw needed.');
-      // }
+        }
+  
+        window.dispatchEvent(matchEvent);
+        isFunction(callback) && callback(self);
+      });
     },
   
   
     /**
      * Restore the Grid element to its original state
      *
-     * @return {Object} The Grid object instance
+     * @param  {Function} callback  Optional. Callback function to call when done
      */
-    restore: function() {
+    restore: function(callback) {
       if (!this.status) {
-        return;
+        isFunction(callback) && callback(false);
+        return false;
       }
   
-      var self = this;
+      var self = this,
+        eventDetails = {
+          element: self.element,
+          from: self.columns
+        };
   
       window.requestAnimationFrame(function() {
         var fragment = document.createDocumentFragment(),
           container = self.removeColumns(),
           children = [],
-          restoreEvent = new CustomEvent('savvior:restore', {detail: self.element});
+          restoreEvent = new CustomEvent('savvior:restore', {detail: eventDetails});
   
         each(container.childNodes, function(item) {
           children.push(item);
@@ -282,13 +308,11 @@
         self.element.appendChild(fragment);
         self.element.removeAttribute('data-columns');
   
-        window.dispatchEvent(restoreEvent);
   
-        // console.log('  ✔︎ restore: done');
-        return self;
+        window.dispatchEvent(restoreEvent);
+        isFunction(callback) && callback(self);
       });
     }
-  
   };
   /**
    * Implements the handling of a grid element.
@@ -377,9 +401,16 @@
      * @param  {[type]} mq The current query
      */
     gridSetup: function(mq) {
-      if (!this.grid.status) {
-        // console.log('▶︎ ◉ gridSetup(): '+ this.selector +' on '+ mq +', columns: '+ this.options[mq].columns);
-        this.grid.setup(this.options[mq].columns);
+      var self = this;
+      if (!self.grid.status) {
+        self.grid.setup(self.options[mq].columns, function() {
+          var eventDetails = {
+              element: (self.grid) ? self.grid.element : null,
+              columns: (self.grid) ? self.grid.columns : null,
+            },
+            evt = new CustomEvent('savvior:setup', {detail: eventDetails});
+          window.dispatchEvent(evt);
+        });
       }
     },
   
@@ -390,8 +421,17 @@
      * @param  {[type]} mq The current query
      */
     gridMatch: function(mq) {
-      // console.log('  ◎ gridMatch(): '+ this.selector +' on '+ mq +', columns: '+ this.options[mq].columns);
-      this.grid.redraw(this.options[mq].columns);
+      var self = this,
+        eventDetails = {
+          element: self.grid.element,
+          from: self.grid.columns,
+          to: self.options[mq].columns,
+          query: mq
+        },
+        evt = new CustomEvent('savvior:match', {detail: eventDetails});
+      self.grid.redraw(self.options[mq].columns, function() {
+        window.dispatchEvent(evt);
+      });
     },
   
   
@@ -401,22 +441,27 @@
      * This unregisters any previously registered enquire handlers and clears up
      * the object instance
      */
-    unregister: function() {
+    unregister: function(callback) {
       each(this.queryHandlers, function(h) {
         enquire.unregister(h.mq, h.callbacks);
       });
   
-      this.grid.restore();
-      // Cleanup
-      this.queryHandlers = [];
-      delete this.grid;
-      this.ready = false;
+      var self = this;
+      this.grid.restore(function() {
+        // Cleanup
+        self.queryHandlers = [];
+        delete self.grid;
+        self.ready = false;
+  
+        isFunction(callback) && callback(self);
+      });
     }
   };
   /**
-   * Allows for registration of grid handlers.
-   * Manages the state of the grid handler.
+   * Implements the top level registration of grid handlers and manages their
+   * states.
    *
+   * @param {Object} GridDispatch.grids  Collection of grid handlers
    * @constructor
    */
   function GridDispatch() {
@@ -429,12 +474,20 @@
   
   GridDispatch.prototype = {
   
+    /**
+     * Registers a single grid handler
+     *
+     * @param  {String} selector The selector of the grid element
+     * @param  {Object} options  Defines the number of columns a grid should have
+     *   for each media query registered.
+     * @return {Object}          The dispatch object instance
+     */
     init: function(selector, options) {
-      if (typeof options === undefined) {
+      if (selector === undefined || options === undefined) {
         return false;
       }
   
-      var initEvent = new CustomEvent('savvior:init'),
+      var evt = new CustomEvent('savvior:init'),
         grids = this.grids;
   
       if (!grids[selector]) {
@@ -444,25 +497,60 @@
   
       grids[selector].register(options);
   
-      window.dispatchEvent(initEvent);
+      window.dispatchEvent(evt);
   
       return this;
     },
   
-    destroy: function(selector) {
+    /**
+     * Restores one or all of the grids into their original state
+     *
+     * @param  {Array} selector     The selectors of the grids to destroy as given
+     *   during the init call.
+     * @param  {Function} callback  Optional. Callback function to call when done
+     */
+    destroy: function(selectors, callback) {
+      var evt = new CustomEvent('savvior:destroy'),
+        self = this,
+        grids = (selectors === undefined || isEmpty(selectors)) ? Object.keys(this.grids) : selectors,
+        total = grids.length,
+        counter = 0,
+        done = function(args) {
+          delete self.grids[grids[counter]];
+          if (++counter === total) {
+            window.dispatchEvent(evt);
+            isFunction(callback) && callback(args);
+          }
+        };
+  
+      each(grids, function(selector) {
+        if (self.grids[selector] !== undefined) {
+          self.grids[selector].unregister(done);
+        }
+      });
+    },
+  
+    /**
+     * Tells if one or all the grids are initialised
+     *
+     * @param  {String} selector Optional. The selector of the grid used in init()
+     * @return {Boolean}         If selector is given, returns a boolean value, or
+     *   undefined if selector does not exist. If called without an argument, an
+     *   array of ready grids is returned.
+     */
+    ready: function(selector) {
+      if (selector === undefined) {
+        var grids = [];
+        for (var key in this.grids) {
+          if (this.grids[key].ready) {
+            grids.push(key);
+          }
+        }
+        return (grids.length > 0) ? grids : false;
+      }
   
       if (!this.grids[selector]) {
         return false;
-      }
-      this.grids[selector].unregister();
-      delete this.grids[selector];
-  
-      return this;
-    },
-  
-    ready: function(selector) {
-      if (!this.grids[selector]) {
-        return;
       }
   
       return this.grids[selector].ready;
