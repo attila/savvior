@@ -86,7 +86,15 @@ GridHandler.prototype = {
    */
   gridSetup: function(mq) {
     if (!this.grid.status) {
-      this.grid.setup(this.options[mq].columns);
+    var self = this;
+      self.grid.setup(this.options[mq].columns, function() {
+        var eventDetails = {
+            element: self.grid.element,
+            columns: self.grid.columns
+          },
+          evt = new CustomEvent('savvior:setup', {detail: eventDetails});
+        window.dispatchEvent(evt);
+      });
     }
   },
 
@@ -97,7 +105,17 @@ GridHandler.prototype = {
    * @param  {[type]} mq The current query
    */
   gridMatch: function(mq) {
-    this.grid.redraw(this.options[mq].columns);
+    var self = this,
+      eventDetails = {
+        element: self.grid.element,
+        from: self.grid.columns,
+        to: self.options[mq].columns,
+        query: mq
+      },
+      evt = new CustomEvent('savvior:match', {detail: eventDetails});
+    self.grid.redraw(self.options[mq].columns, function() {
+      window.dispatchEvent(evt);
+    });
   },
 
 
