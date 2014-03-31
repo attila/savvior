@@ -24,7 +24,7 @@ GridDispatch.prototype = {
    * @return {Object}          The dispatch object instance
    */
   init: function(selector, options) {
-    if (options === undefined || options === undefined) {
+    if (selector === undefined || options === undefined) {
       return false;
     }
 

@@ -85,12 +85,12 @@ GridHandler.prototype = {
    * @param  {[type]} mq The current query
    */
   gridSetup: function(mq) {
-    if (!this.grid.status) {
     var self = this;
-      self.grid.setup(this.options[mq].columns, function() {
+    if (!self.grid.status) {
+      self.grid.setup(self.options[mq].columns, function() {
         var eventDetails = {
-            element: self.grid.element,
-            columns: self.grid.columns
+            element: (self.grid) ? self.grid.element : null,
+            columns: (self.grid) ? self.grid.columns : null,
           },
           evt = new CustomEvent('savvior:setup', {detail: eventDetails});
         window.dispatchEvent(evt);
