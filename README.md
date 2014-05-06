@@ -33,9 +33,21 @@ In the `<head>`:
 ##### using as an AMD module, for example via Require.js
 
 ````javascript
+// Configure at least the paths for your modules
+requirejs.config({
+  paths: {
+    enquire: 'path/to/enquire',
+    savvior: 'path/to/savvior'
+  }
+});
+
 require(['savvior', 'domReady!'], function(savvior) {
   // Enquire is a dependency of savvior so you can initialize it right here.
   // You'll need to load your own polyfills though.
+  savvior.init('#myGrid', {
+    "screen and (max-width: 20em)": { columns: 2 },
+    "screen and (min-width: 20em)": { columns: 3 },
+  });
 });
 ````
 
