@@ -11,7 +11,7 @@
 }(this, function(enquire) {
 
   /*jshint unused:false */
-  
+
   function addToDataset(element, key, value) {
     // Use dataset function or a fallback for <IE10
     if (element.dataset) {
@@ -20,10 +20,10 @@
     else {
       element.setAttribute('data-'+ key, value);
     }
-  
+
     return;
   }
-  
+
   /**
    * Helper function for iterating over a collection
    *
@@ -34,7 +34,7 @@
     var i = 0,
       length = collection.length,
       cont;
-  
+
     for (i; i < length; i++) {
       cont = fn(collection[i], i);
       if(cont === false) {
@@ -42,7 +42,7 @@
       }
     }
   }
-  
+
   /**
    * Helper function for determining whether target object is an array
    *
@@ -52,7 +52,7 @@
   function isArray(target) {
     return Object.prototype.toString.apply(target) === '[object Array]';
   }
-  
+
   /**
    * Helper function for determining whether target object is a function
    *
@@ -62,7 +62,7 @@
   function isFunction(target) {
     return typeof target === 'function';
   }
-  
+
   /**
    * Helper function to determine if an object or array is empty.
    *
@@ -75,7 +75,7 @@
     }
     return !0;
   }
-  
+
   /**
    * CustomEvent polyfill
    */
@@ -87,14 +87,14 @@
         evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
         return evt;
        }
-  
+
       window.CustomEvent = CustomEvent;
-  
+
       CustomEvent.prototype = window.CustomEvent.prototype;
     })();
   }
-  
-  
+
+
   /**
    * requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
    *
@@ -105,12 +105,12 @@
   (function() {
     var lastTime = 0;
     var vendors = ['ms', 'moz', 'webkit', 'o'];
-  
+
     for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
       window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
       window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
     }
-  
+
     if (!window.requestAnimationFrame) {
       window.requestAnimationFrame = function(callback, element) {
         var currTime = new Date().getTime();
@@ -121,7 +121,7 @@
         return id;
       };
     }
-  
+
     if (!window.cancelAnimationFrame) {
       window.cancelAnimationFrame = function(id) {
         clearTimeout(id);
@@ -142,9 +142,9 @@
     this.element = element;
     this.status = false;
   }
-  
+
   Grid.prototype = {
-  
+
     /**
      * Set up the grid element and add columns
      *
@@ -158,21 +158,21 @@
         var self = this,
           range = document.createRange(),
           items = document.createElement('div');
-  
+
         range.selectNodeContents(this.element);
         items.appendChild(range.extractContents());
-  
+
         window.requestAnimationFrame(function() {
           addToDataset(items, 'columns', 0);
           self.addColumns(items, columns);
           self.status = true;
-  
+
           isFunction(callback) && callback(self);
         });
       }
     },
-  
-  
+
+
     /**
      * Create columns with the configured classes and add a list of items to them.
      */
@@ -182,31 +182,31 @@
         columnsItems = [],
         i = columns,
         childSelector;
-  
+
       while (i-- !== 0) {
         childSelector = '[data-columns] > *:nth-child(' + columns + 'n-' + i + ')';
         columnsItems.push(items.querySelectorAll(childSelector));
       }
-  
+
       each(columnsItems, function(rows) {
         var column = document.createElement('div'),
           rowsFragment = document.createDocumentFragment();
-  
+
         column.className = columnClasses.join(' ');
-  
+
         each(rows, function(row) {
           rowsFragment.appendChild(row);
         });
         column.appendChild(rowsFragment);
         columnsFragment.appendChild(column);
       });
-  
+
       this.element.appendChild(columnsFragment);
       addToDataset(this.element, 'columns', columns);
       this.columns = columns;
     },
-  
-  
+
+
     /**
      * Remove all the columns from a grid and prepare it for populating again.
      *
@@ -217,36 +217,36 @@
       var range = document.createRange(),
         grid = this.element,
         columns;
-  
+
       range.selectNodeContents(grid);
-  
+
       columns = Array.prototype.filter.call(range.extractContents().childNodes, function filterElements(node) {
         return node instanceof window.HTMLElement;
       });
-  
+
       var numberOfColumns = columns.length,
         numberOfRowsInFirstColumn = columns[0].childNodes.length,
         sortedRows = new Array(numberOfRowsInFirstColumn * numberOfColumns);
-  
+
       each(columns, function iterateColumns(column, columnIndex) {
         each(column.children, function iterateRows(row, rowIndex) {
           sortedRows[rowIndex * numberOfColumns + columnIndex] = row;
         });
       });
-  
+
       var container = document.createElement('div');
       addToDataset(container, 'columns', 0);
-  
+
       sortedRows.filter(function(child) {
         return !!child;
       }).forEach(function(child) {
         container.appendChild(child);
       });
-  
+
       return container;
     },
-  
-  
+
+
     /**
      * Remove all the columns from the grid, and add them again if the number of
      * columns have changed.
@@ -264,18 +264,18 @@
           to: newColumns
         },
         matchEvent = new CustomEvent('savvior:redraw', {detail: eventDetails});
-  
+
       window.requestAnimationFrame(function() {
         if (self.columns !== newColumns) {
           self.addColumns(self.removeColumns(), newColumns);
         }
-  
+
         window.dispatchEvent(matchEvent);
         isFunction(callback) && callback(self);
       });
     },
-  
-  
+
+
     /**
      * Restore the Grid element to its original state
      *
@@ -286,19 +286,19 @@
         isFunction(callback) && callback(false);
         return false;
       }
-  
+
       var self = this,
         eventDetails = {
           element: self.element,
           from: self.columns
         };
-  
+
       window.requestAnimationFrame(function() {
         var fragment = document.createDocumentFragment(),
           container = self.removeColumns(),
           children = [],
           restoreEvent = new CustomEvent('savvior:restore', {detail: eventDetails});
-  
+
         each(container.childNodes, function(item) {
           children.push(item);
         });
@@ -307,8 +307,8 @@
         });
         self.element.appendChild(fragment);
         self.element.removeAttribute('data-columns');
-  
-  
+
+
         window.dispatchEvent(restoreEvent);
         isFunction(callback) && callback(self);
       });
@@ -337,36 +337,36 @@
     this.grid = {};
     this.ready = false;
   }
-  
+
   GridHandler.prototype = {
-  
+
     /**
      * Register the Grid object instance and its enquire handlers
      */
     register: function() {
       var el = document.querySelector(this.selector);
-  
+
       if (window.getComputedStyle(el).display === 'none') {
         return;
       }
-  
+
       this.grid = new Grid(el, this.selector);
-  
+
       for (var mq in this.options) {
         var handler = this.constructHandler(mq, this.options[mq]);
         this.queryHandlers.push(handler);
       }
-  
+
       each(this.queryHandlers, function(h) {
         enquire.register(h.mq, h.handler);
       });
-  
+
       this.ready = true;
-  
+
       return this;
     },
-  
-  
+
+
     /**
      * Helper function to construct enquire handler objects
      *
@@ -376,7 +376,7 @@
      */
     constructHandler: function(mq) {
       var self = this;
-  
+
       return {
         mq: mq,
         handler: {
@@ -393,8 +393,8 @@
         }
       };
     },
-  
-  
+
+
     /**
      * Enquire setup callback
      *
@@ -413,8 +413,8 @@
         });
       }
     },
-  
-  
+
+
     /**
      * Enquire match callback
      *
@@ -433,8 +433,8 @@
         window.dispatchEvent(evt);
       });
     },
-  
-  
+
+
     /**
      * Restore the grid to its original state.
      *
@@ -445,14 +445,14 @@
       each(this.queryHandlers, function(h) {
         enquire.unregister(h.mq, h.callbacks);
       });
-  
+
       var self = this;
       this.grid.restore(function() {
         // Cleanup
         self.queryHandlers = [];
         delete self.grid;
         self.ready = false;
-  
+
         isFunction(callback) && callback(self);
       });
     }
@@ -468,12 +468,12 @@
     if (!enquire) {
       throw new Error('enquire.js not present, please load it before calling any methods');
     }
-  
+
     this.grids = {};
   }
-  
+
   GridDispatch.prototype = {
-  
+
     /**
      * Registers a single grid handler
      *
@@ -486,22 +486,22 @@
       if (selector === undefined || options === undefined) {
         return false;
       }
-  
+
       var evt = new CustomEvent('savvior:init'),
         grids = this.grids;
-  
+
       if (!grids[selector]) {
         grids[selector] = new GridHandler(selector, options);
         grids[selector].selector = selector;
       }
-  
+
       grids[selector].register(options);
-  
+
       window.dispatchEvent(evt);
-  
+
       return this;
     },
-  
+
     /**
      * Restores one or all of the grids into their original state
      *
@@ -522,14 +522,14 @@
             isFunction(callback) && callback(args);
           }
         };
-  
+
       each(grids, function(selector) {
         if (self.grids[selector] !== undefined) {
           self.grids[selector].unregister(done);
         }
       });
     },
-  
+
     /**
      * Tells if one or all the grids are initialised
      *
@@ -548,15 +548,15 @@
         }
         return (grids.length > 0) ? grids : false;
       }
-  
+
       if (!this.grids[selector]) {
         return false;
       }
-  
+
       return this.grids[selector].ready;
     }
   };
-  
+
 
   return new GridDispatch();
 
