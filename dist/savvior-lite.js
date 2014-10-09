@@ -1,14 +1,14 @@
 (function(root, factory) {
     if(typeof exports === 'object') {
-        module.exports = factory(require('enquire'));
+        module.exports = factory();
     }
     else if(typeof define === 'function' && define.amd) {
-        define('savvior', ['enquire'], factory);
+        define('savvior-lite', [], factory);
     }
     else {
-        root['savvior'] = factory(root.enquire);
+        root['savvior-lite'] = factory();
     }
-}(this, function(enquire) {
+}(this, function() {
 
   /*jshint unused:false */
 
@@ -319,119 +319,60 @@
    *
    * This performs operations via registered enquire handlers
    *
-   * @param {Object} GridHandler
-   * @param {String} GridHandler.selector Stores the selector of the Grid
+   * @param {Object} LiteGridHandler
+   * @param {String} LiteGridHandler.selector Stores the selector of the Grid
    *   instance element
-   * @param {Object} GridHandler.options  Defines the number of columns a grid
+   * @param {Object} LiteGridHandler.options  Defines the number of columns a grid
    *   should have for each media query registered
-   * @param {Array} GridHandler.queryHandlers  Stores all registered enquire
+   * @param {Array} LiteGridHandler.queryHandlers  Stores all registered enquire
    *   handlers so they are unregisterable
-   * @param {Object} GridHandler.grid  The Grid object reference
-   * @param {Boolean} GridHandler.ready  Pointer to maintain the Grid status
+   * @param {Object} LiteGridHandler.grid  The Grid object reference
+   * @param {Boolean} LiteGridHandler.ready  Pointer to maintain the Grid status
    * @constructor
    */
-  function GridHandler(selector, options) {
-    this.selector = selector;
-    this.options = options;
-    this.queryHandlers = [];
+  function LiteGridHandler() {
+    this.selector = null;
+    this.options = null;
     this.grid = {};
     this.ready = false;
   }
 
-  GridHandler.prototype = {
+  LiteGridHandler.prototype = {
 
     /**
      * Register the Grid object instance and its enquire handlers
      */
-    register: function() {
-      var el = document.querySelector(this.selector);
+    init: function(selector, options) {
+      if (selector === undefined || options === undefined) {
+        return false;
+      }
 
-      if (window.getComputedStyle(el).display === 'none') {
+      var el = document.querySelector(selector);
+
+      if (typeof window.getComputedStyle !== 'undefined' && window.getComputedStyle(el).display === 'none') {
         return;
       }
 
+      this.options = options;
+      this.selector = selector;
       this.grid = new Grid(el, this.selector);
 
-      for (var mq in this.options) {
-        var handler = this.constructHandler(mq, this.options[mq]);
-        this.queryHandlers.push(handler);
-      }
-
-      each(this.queryHandlers, function(h) {
-        enquire.register(h.mq, h.handler);
-      });
-
-      this.ready = true;
-
-      return this;
-    },
-
-
-    /**
-     * Helper function to construct enquire handler objects
-     *
-     * @param  {String} mq The media query to register
-     * @return {Object}    The handler object containing this.handler to
-     *   register with enquire
-     */
-    constructHandler: function(mq) {
-      var self = this;
-
-      return {
-        mq: mq,
-        handler: {
-          deferSetup: true,
-          setup: function() {
-            self.gridSetup(mq);
-          },
-          match: function() {
-            self.gridMatch(mq);
-          },
-          destroy: function() {
-            return;
-          }
-        }
-      };
-    },
-
-
-    /**
-     * Enquire setup callback
-     *
-     * @param  {[type]} mq The current query
-     */
-    gridSetup: function(mq) {
       var self = this;
       if (!self.grid.status) {
-        self.grid.setup(self.options[mq].columns, function() {
+        self.grid.setup(this.options.columns, function() {
           var eventDetails = {
               element: (self.grid) ? self.grid.element : null,
               columns: (self.grid) ? self.grid.columns : null,
             },
-            evt = new CustomEvent('savvior:setup', {detail: eventDetails});
+            evt = new CustomEvent('savvior-lite:init', {detail: eventDetails});
+
           window.dispatchEvent(evt);
         });
       }
-    },
 
+      this.ready = true;
 
-    /**
-     * Enquire match callback
-     *
-     * @param  {[type]} mq The current query
-     */
-    gridMatch: function(mq) {
-      var self = this,
-        eventDetails = {
-          element: self.grid.element,
-          from: self.grid.columns,
-          to: self.options[mq].columns,
-          query: mq
-        },
-        evt = new CustomEvent('savvior:match', {detail: eventDetails});
-      self.grid.redraw(self.options[mq].columns, function() {
-        window.dispatchEvent(evt);
-      });
+      return this;
     },
 
 
@@ -441,12 +382,9 @@
      * This unregisters any previously registered enquire handlers and clears up
      * the object instance
      */
-    unregister: function(callback) {
-      each(this.queryHandlers, function(h) {
-        enquire.unregister(h.mq, h.callbacks);
-      });
-
+    destroy: function(callback) {
       var self = this;
+
       this.grid.restore(function() {
         // Cleanup
         self.queryHandlers = [];
@@ -457,107 +395,8 @@
       });
     }
   };
-  /**
-   * Implements the top level registration of grid handlers and manages their
-   * states.
-   *
-   * @param {Object} GridDispatch.grids  Collection of grid handlers
-   * @constructor
-   */
-  function GridDispatch() {
-    if (!enquire) {
-      throw new Error('enquire.js not present, please load it before calling any methods');
-    }
-
-    this.grids = {};
-  }
-
-  GridDispatch.prototype = {
-
-    /**
-     * Registers a single grid handler
-     *
-     * @param  {String} selector The selector of the grid element
-     * @param  {Object} options  Defines the number of columns a grid should have
-     *   for each media query registered.
-     * @return {Object}          The dispatch object instance
-     */
-    init: function(selector, options) {
-      if (selector === undefined || options === undefined) {
-        return false;
-      }
-
-      var evt = new CustomEvent('savvior:init'),
-        grids = this.grids;
-
-      if (!grids[selector]) {
-        grids[selector] = new GridHandler(selector, options);
-        grids[selector].selector = selector;
-      }
-
-      grids[selector].register(options);
-
-      window.dispatchEvent(evt);
-
-      return this;
-    },
-
-    /**
-     * Restores one or all of the grids into their original state
-     *
-     * @param  {Array} selector     The selectors of the grids to destroy as given
-     *   during the init call.
-     * @param  {Function} callback  Optional. Callback function to call when done
-     */
-    destroy: function(selectors, callback) {
-      var evt = new CustomEvent('savvior:destroy'),
-        self = this,
-        grids = (selectors === undefined || isEmpty(selectors)) ? Object.keys(this.grids) : selectors,
-        total = grids.length,
-        counter = 0,
-        done = function(args) {
-          delete self.grids[grids[counter]];
-          if (++counter === total) {
-            window.dispatchEvent(evt);
-            isFunction(callback) && callback(args);
-          }
-        };
-
-      each(grids, function(selector) {
-        if (self.grids[selector] !== undefined) {
-          self.grids[selector].unregister(done);
-        }
-      });
-    },
-
-    /**
-     * Tells if one or all the grids are initialised
-     *
-     * @param  {String} selector Optional. The selector of the grid used in init()
-     * @return {Boolean}         If selector is given, returns a boolean value, or
-     *   undefined if selector does not exist. If called without an argument, an
-     *   array of ready grids is returned.
-     */
-    ready: function(selector) {
-      if (selector === undefined) {
-        var grids = [];
-        for (var key in this.grids) {
-          if (this.grids[key].ready) {
-            grids.push(key);
-          }
-        }
-        return (grids.length > 0) ? grids : false;
-      }
-
-      if (!this.grids[selector]) {
-        return false;
-      }
-
-      return this.grids[selector].ready;
-    }
-  };
 
 
-  return new GridDispatch();
+  return new LiteGridHandler();
 
 }));

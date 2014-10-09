@@ -10,11 +10,18 @@ module.exports = function(grunt) {
                ' * <%= pkg.name %> v<%= pkg.version %> - <%= pkg.description %>\n'+
                ' * <%= pkg.homepage %>\n'+
                ' * <%= pkg.repository.url %>\n'+
+               ' */\n',
+        lite: '/*!\n'+
+               ' * <%= pkg.nameLite %> v<%= pkg.version %> - <%= pkg.description %>\n'+
+               ' * <%= pkg.homepage %>\n'+
+               ' * <%= pkg.repository.url %>\n'+
                ' */\n'
       },
       outputDir: 'dist',
       output : '<%= meta.outputDir %>/<%= pkg.name %>',
-      outputMin : '<%= meta.outputDir %>/<%= pkg.name.replace("js", "min.js") %>'
+      outputLite : '<%= meta.outputDir %>/<%= pkg.nameLite %>',
+      outputMin : '<%= meta.outputDir %>/<%= pkg.name.replace("js", "min.js") %>',
+      outputLiteMin : '<%= meta.outputDir %>/<%= pkg.nameLite.replace("js", "min.js") %>'
     },
 
     concat: {
@@ -29,6 +36,14 @@ module.exports = function(grunt) {
           'src/GridDispatch.js'
         ],
         dest: '<%= meta.output %>.js'
+      },
+      lite: {
+        src: [
+          'src/Helpers.js',
+          'src/Grid.js',
+          'src/LiteGridHandler.js',
+        ],
+        dest: '<%= meta.outputLite %>.js'
       }
     },
 
@@ -43,6 +58,14 @@ module.exports = function(grunt) {
         files: {
           '<%= meta.outputDir %>/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
         }
+      },
+      lite: {
+        options: {
+          banner: '<%= meta.banner.lite %>'
+        },
+        files: {
+          '<%= meta.outputDir %>/<%= pkg.nameLite %>.min.js': ['<%= concat.lite.dest %>']
+        }
       }
     },
 
@@ -50,7 +73,7 @@ module.exports = function(grunt) {
       options: {
         jshintrc : '.jshintrc'
       },
-      files: ['Gruntfile.js', '<%= concat.dist.src %>']
+      files: ['Gruntfile.js', '<%= concat.dist.src %>', '<%= concat.lite.src %>']
     },
 
     jasmine: {
@@ -83,6 +106,13 @@ module.exports = function(grunt) {
         deps: {
           'default': ['enquire'],
         }
+      },
+      lite: {
+        src: '<%= concat.lite.dest %>',
+        amdModuleId: '<%= pkg.nameLite %>',
+        objectToExport: 'new LiteGridHandler()',
+        globalAlias: '<%= pkg.nameLite %>',
+        indent: '  ',
       },
     },
 
