@@ -14,6 +14,19 @@ A Javascript solution for multicolumn layouts, an alternative to Salvattore or M
 
 ## Usage
 
+### Add some CSS
+
+Add some CSS to support the layout when multiple columns are created, e.g
+
+````css
+.column { float: left; }
+.size-1of2 { width: 50%; }
+.size-1of3 { width: 33.33333%; }
+.size-1of4 { width: 25%; }
+````
+
+### Load the JavaScript
+
 #### Load it synchronously
 
 Just add these before your closing `<body>` tag.
