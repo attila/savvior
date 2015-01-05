@@ -112,7 +112,7 @@ Modernizr.load([{
   // destroy all instances
   savvior.destroy();
   // destroy specific instances
-  savvior.ready(["#myGrid", "#anotherGrid"]);
+  savvior.destroy(["#myGrid", "#anotherGrid"]);
 ````
 
 #### And more...
@@ -121,7 +121,7 @@ Detailed documentation coming soon!
 
 ## Development
 
-Development is sponsored by Dennis Interactive and Front Seed Labs
+Development is sponsored by [Dennis Interactive](http://www.dennis.co.uk/) and [Front Seed Labs](http://frontseed.com/)
 
 ## License
 
