@@ -153,7 +153,7 @@
      */
     setup: function(columns, callback) {
       // Do not act on hidden elements or if set already
-      if (!this.status || window.getComputedStyle(this.element).display !== 'none') {
+      if (!this.status) {
         // Retrieve the list of items from the grid itself.
         var self = this,
           range = document.createRange(),
@@ -345,10 +345,6 @@
      */
     register: function() {
       var el = document.querySelector(this.selector);
-
-      if (window.getComputedStyle(el).display === 'none') {
-        return;
-      }
 
       this.grid = new Grid(el, this.selector);
 
