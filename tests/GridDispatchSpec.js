@@ -9,6 +9,7 @@
     beforeEach(function() {
       this.selector1 = '#myGrid';
       this.selector2 = '#anotherGrid';
+      this.selector3 = '#hiddenGrid';
       this.settings = {
         'screen and (max-width: 480px)': { columns: 2 },
         'screen and (min-width: 480px) and (max-width: 640px)': { columns: 3 },
@@ -55,6 +56,13 @@
       expect(savvior.ready()).toEqual([this.selector1]);
     });
 
+    it('is initialised on a hidden container', function() {
+      // Act
+      savvior.init(this.selector3, this.settings);
+      // Assert
+      expect(savvior.ready()).toEqual([this.selector3]);
+    });
+
     it('dispatches event when ready', function() {
       // Arrange
       spyOnEvent(global, 'savvior:init');
@@ -67,6 +75,7 @@
       // Arrange
       savvior.init(this.selector1, this.settings);
       savvior.init(this.selector2, this.settings);
+      savvior.init(this.selector3, this.settings);
       // Act & Assert
       savvior.destroy([], function() {
         expect(Object.keys(savvior.grids).length).toEqual(0);
@@ -83,6 +92,19 @@
       savvior.destroy([this.selector1], function() {
         expect(savvior.grids[self.selector1]).not.toBeDefined();
         expect(savvior.grids[self.selector2]).toBeDefined();
+        done();
+      });
+    });
+
+    it('removes selected GridHandler object on a hidden container when destroyed', function(done) {
+      // Arrange
+      var self = this;
+      savvior.init(this.selector1, this.settings);
+      savvior.init(this.selector3, this.settings);
+      // Act & Assert
+      savvior.destroy([this.selector3], function() {
+        expect(savvior.grids[self.selector3]).not.toBeDefined();
+        expect(savvior.grids[self.selector1]).toBeDefined();
         done();
       });
     });

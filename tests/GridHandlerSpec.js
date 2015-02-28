@@ -28,8 +28,6 @@
       handler = new GridHandler(this.selector, this.settings);
     });
 
-    it('does not process hidden elements');
-
     it('constructs enquire handlers', function() {
       // Act
       handler.register();
