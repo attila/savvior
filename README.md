@@ -14,6 +14,19 @@ A Javascript solution for multicolumn layouts, an alternative to Salvattore or M
 
 ## Usage
 
+### Add some CSS
+
+Add some CSS to support the layout when multiple columns are created, e.g
+
+````css
+.column { float: left; }
+.size-1of2 { width: 50%; }
+.size-1of3 { width: 33.33333%; }
+.size-1of4 { width: 25%; }
+````
+
+### Load the JavaScript
+
 #### Load it synchronously
 
 Just add these before your closing `<body>` tag.
@@ -99,7 +112,7 @@ Modernizr.load([{
   // destroy all instances
   savvior.destroy();
   // destroy specific instances
-  savvior.ready(["#myGrid", "#anotherGrid"]);
+  savvior.destroy(["#myGrid", "#anotherGrid"]);
 ````
 
 #### And more...
@@ -108,7 +121,7 @@ Detailed documentation coming soon!
 
 ## Development
 
-Development is sponsored by Dennis Interactive and Front Seed Labs
+Development is sponsored by [Dennis Interactive](http://www.dennis.co.uk/) and [Front Seed Labs](http://frontseed.com/)
 
 ## License
 
