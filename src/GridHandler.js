@@ -30,10 +30,6 @@ GridHandler.prototype = {
   register: function() {
     var el = document.querySelector(this.selector);
 
-    if (window.getComputedStyle(el).display === 'none') {
-      return;
-    }
-
     this.grid = new Grid(el, this.selector);
 
     for (var mq in this.options) {
