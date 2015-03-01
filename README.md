@@ -14,6 +14,8 @@ A Javascript solution for multicolumn layouts, an alternative to Salvattore or M
 
 ## Usage
 
+Please refer to the [Examples](https://github.com/attila/savvior-examples) for detailed usage information.
+
 ### Add some CSS
 
 Add some CSS to support the layout when multiple columns are created, e.g
