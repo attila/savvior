@@ -44,9 +44,20 @@
       global.enquire = this.enquire;
     });
 
-    it('is not initialised without arguments', function() {
-      // Assert
-      expect(savvior.init()).toEqual(false);
+    it('throws TypeError without selector', function() {
+      // Act & Assert
+      expect(function() {
+        savvior.init();
+      }).toThrow(new TypeError('Missing selector'));
+    });
+
+    it('throws TypeError without options', function() {
+      // Arrange
+      var selector = this.selector1;
+      // Act & Assert
+      expect(function() {
+        savvior.init(selector);
+      }).toThrow(new TypeError('Missing options'));
     });
 
     it('is initialised if correct arguments are provided', function() {

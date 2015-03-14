@@ -24,8 +24,12 @@ GridDispatch.prototype = {
    * @return {Object}          The dispatch object instance
    */
   init: function(selector, options) {
-    if (selector === undefined || options === undefined) {
-      return false;
+    if (selector === undefined) {
+      throw new Error('Missing selector');
+    }
+
+    if (options === undefined) {
+      throw new Error('Missing options');
     }
 
     var evt = new CustomEvent('savvior:init'),
