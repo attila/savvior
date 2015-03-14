@@ -24,22 +24,19 @@ GridDispatch.prototype = {
    * @return {Object}          The dispatch object instance
    */
   init: function(selector, options) {
-    if (selector === undefined) {
-      throw new Error('Missing selector');
+    if (typeof selector !== 'string') {
+      throw new Error('Selector must be a string');
     }
 
-    if (options === undefined) {
-      throw new Error('Missing options');
+    if (typeof options !== 'object') {
+      throw new Error('Options must be an object');
     }
 
     var evt = new CustomEvent('savvior:init'),
       grids = this.grids;
 
-    if (!grids[selector]) {
-      grids[selector] = new GridHandler(selector, options);
-      grids[selector].selector = selector;
-    }
-
+    grids[selector] = new GridHandler(selector, options);
+    grids[selector].selector = selector;
     grids[selector].register(options);
 
     window.dispatchEvent(evt);

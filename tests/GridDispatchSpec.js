@@ -48,7 +48,14 @@
       // Act & Assert
       expect(function() {
         savvior.init();
-      }).toThrow(new TypeError('Missing selector'));
+      }).toThrow(new TypeError('Selector must be a string'));
+    });
+
+    it('throws TypeError when wrong type is given for selector', function() {
+      // Act & Assert
+      expect(function() {
+        savvior.init([]);
+      }).toThrow(new TypeError('Selector must be a string'));
     });
 
     it('throws TypeError without options', function() {
@@ -57,7 +64,16 @@
       // Act & Assert
       expect(function() {
         savvior.init(selector);
-      }).toThrow(new TypeError('Missing options'));
+      }).toThrow(new TypeError('Options must be an object'));
+    });
+
+    it('throws TypeError when wrong type is given for options', function() {
+      // Arrange
+      var selector = this.selector1;
+      // Act & Assert
+      expect(function() {
+        savvior.init(selector, 'dummy string');
+      }).toThrow(new TypeError('Options must be an object'));
     });
 
     it('is initialised if correct arguments are provided', function() {
