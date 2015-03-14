@@ -61,31 +61,31 @@
     it('calls Grid.setup on setup', function() {
       // Arrange
       handler.register();
-      spyOn(handler.grid, 'setup').and.callFake(function(columns) {
+      spyOn(handler.grids[0], 'setup').and.callFake(function(columns) {
         return columns;
       });
       // Act
       handler.gridSetup(Object.keys(this.settings)[0]);
       // Assert
-      expect(handler.grid.setup.calls.count()).toEqual(1);
+      expect(handler.grids[0].setup.calls.count()).toEqual(1);
     });
 
     it('calls Grid.redraw on match', function() {
       // Arrange
       handler.register();
-      spyOn(handler.grid, 'redraw').and.callFake(function(columns) {
+      spyOn(handler.grids[0], 'redraw').and.callFake(function(columns) {
         return columns;
       });
       // Act
       handler.gridMatch(Object.keys(this.settings)[0]);
       // Assert
-      expect(handler.grid.redraw.calls.count()).toEqual(1);
+      expect(handler.grids[0].redraw.calls.count()).toEqual(1);
     });
 
     it('unregisters handlers', function(done) {
       // Arrange
       handler.register();
-      handler.grid.setup(2, function() {
+      handler.grids[0].setup(2, function() {
         var length = handler.queryHandlers.length;
         // Act & Assert
         handler.unregister(function() {
