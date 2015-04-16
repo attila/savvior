@@ -117,9 +117,9 @@ Modernizr.load([{
   savvior.destroy(["#myGrid", "#anotherGrid"]);
 ````
 
-#### And more...
+## History of changes
 
-Detailed documentation coming soon!
+See CHANGELOG.md
 
 ## Development
 
