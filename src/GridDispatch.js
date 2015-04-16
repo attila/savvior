@@ -32,6 +32,11 @@ GridDispatch.prototype = {
       throw new Error('Options must be an object');
     }
 
+    // Prevent setting up the same grid selector more than once.
+    if (this.grids[selector]) {
+      throw new Error('Grid already set using this selector');
+    }
+
     var evt = new CustomEvent('savvior:init'),
       grids = this.grids;
 
