@@ -76,6 +76,17 @@
       }).toThrow(new TypeError('Options must be an object'));
     });
 
+    it('throws when called on an element already set', function() {
+      // Arrange
+      var selector = this.selector1;
+      var settings = this.settings;
+      // Act & Assert
+      expect(function() {
+        savvior.init(selector, settings);
+        savvior.init(selector, settings);
+      }).toThrow(new Error('Grid already set using this selector'));
+    });
+
     it('is initialised if correct arguments are provided', function() {
       // Act
       savvior.init(this.selector1, this.settings);
