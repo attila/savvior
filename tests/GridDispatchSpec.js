@@ -49,7 +49,7 @@
       // Act & Assert
       expect(function() {
         savvior.init();
-      }).toThrow(new TypeError('Selector must be a string'));
+      }).toThrow(new TypeError('Missing selector'));
     });
 
     it('throws TypeError when wrong type is given for selector', function() {
@@ -77,25 +77,38 @@
       }).toThrow(new TypeError('Options must be an object'));
     });
 
-    it('throws when called on an element already set', function() {
+    it('does not set up the same grid more than once', function() {
       // Arrange
-      var selector = this.selector1;
-      var settings = this.settings;
-      // Act & Assert
-      expect(function() {
-        savvior.init(selector, settings);
-        savvior.init(selector, settings);
-      }).toThrow(new Error('Grid already set using this selector'));
+      var initEventSpy = spyOnEvent(global, 'savvior:init');
+      // Act
+      savvior.init(this.selector1, {'screen': {columns: 1}});
+      initEventSpy.reset();
+      savvior.init(this.selector1, this.settings);
+      // Assert
+      expect(initEventSpy).not.toHaveBeenTriggeredOn(global);
     });
 
-    it('is initialised if correct arguments are provided', function() {
+    it('does not create a GridHandler if elements cannot be found', function() {
+      // Arrange
+      var fakeSelector = '.idontexist';
+      // Act
+      savvior.init(fakeSelector, this.settings);
+      // Assert
+      expect(savvior.grids[fakeSelector]).not.toBeDefined();
+      expect(Object.keys(savvior.grids).length).toEqual(0);
+    });
+
+    it('constructs GridHandler', function() {
+      // Arrange
+      spyOn(GridHandler.prototype, 'register').and.callThrough();
       // Act
       savvior.init(this.selector1, this.settings);
       // Assert
-      expect(savvior.ready()).toEqual([this.selector1]);
+      expect(savvior.grids[this.selector1] instanceof GridHandler).toBe(true);
+      expect(GridHandler.prototype.register).toHaveBeenCalled();
     });
 
-    it('is initialised on multiple grids at once', function() {
+    it('is initialises on multiple grids with class selector', function() {
       // Arrange
       var count = document.querySelectorAll('.grid').length;
       // Act & Assert
@@ -164,6 +177,17 @@
         expect('savvior:destroy').toHaveBeenTriggeredOn(global);
         done();
       });
+    });
+
+    it('reports ready on grids', function() {
+      // Act
+      savvior.init(this.selector1, this.settings);
+      savvior.init(this.selector2, this.settings);
+      // Assert
+      expect(savvior.ready()).toEqual([this.selector1, this.selector2]);
+      expect(savvior.ready([this.selector1])).toBe(true);
+      expect(savvior.ready([this.selector2])).toBe(true);
+      expect(savvior.ready([this.selector3])).not.toBe(true);
     });
 
   });

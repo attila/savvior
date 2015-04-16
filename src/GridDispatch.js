@@ -24,24 +24,31 @@ GridDispatch.prototype = {
    * @return {Object}          The dispatch object instance
    */
   init: function(selector, options) {
+    if (!selector) {
+      throw new TypeError('Missing selector');
+    }
+
     if (typeof selector !== 'string') {
-      throw new Error('Selector must be a string');
+      throw new TypeError('Selector must be a string');
     }
 
     if (typeof options !== 'object') {
-      throw new Error('Options must be an object');
+      throw new TypeError('Options must be an object');
     }
 
     // Prevent setting up the same grid selector more than once.
     if (this.grids[selector]) {
-      throw new Error('Grid already set using this selector');
+      return this;
+    }
+
+    if (document.querySelectorAll(selector).length < 1) {
+      return this;
     }
 
     var evt = new CustomEvent('savvior:init'),
       grids = this.grids;
 
     grids[selector] = new GridHandler(selector, options);
-    grids[selector].selector = selector;
     grids[selector].register(options);
 
     window.dispatchEvent(evt);
@@ -57,18 +64,18 @@ GridDispatch.prototype = {
    * @param  {Function} callback  Optional. Callback function to call when done
    */
   destroy: function(selectors, callback) {
-    var evt = new CustomEvent('savvior:destroy'),
-      self = this,
-      grids = (selectors === undefined || isEmpty(selectors)) ? Object.keys(this.grids) : selectors,
-      total = grids.length,
-      counter = 0,
-      done = function(args) {
-        delete self.grids[grids[counter]];
-        if (++counter === total) {
-          window.dispatchEvent(evt);
-          isFunction(callback) && callback(args);
-        }
-      };
+    var evt = new CustomEvent('savvior:destroy');
+    var self = this;
+    var grids = (selectors === undefined || isEmpty(selectors)) ? Object.keys(this.grids) : selectors;
+    var total = grids.length;
+    var counter = 0;
+    var done = function(args) {
+      delete self.grids[grids[counter]];
+      if (++counter === total) {
+        window.dispatchEvent(evt);
+        isFunction(callback) && callback(args);
+      }
+    };
 
     each(grids, function(selector) {
       if (self.grids[selector] !== undefined) {
