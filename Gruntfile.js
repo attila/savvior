@@ -88,7 +88,7 @@ module.exports = function(grunt) {
     },
 
     watch: {
-      files: ['<%= jshint.files %>', 'tests/*.js'],
+      files: ['<%= jshint.files %>', 'tests/**/*.js', 'tests/**/*.tmpl'],
       tasks: ['default']
     }
   });

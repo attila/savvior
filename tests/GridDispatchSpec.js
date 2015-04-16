@@ -10,6 +10,7 @@
       this.selector1 = '#myGrid';
       this.selector2 = '#anotherGrid';
       this.selector3 = '#hiddenGrid';
+      this.selectorMultiple = '.grid';
       this.settings = {
         'screen and (max-width: 480px)': { columns: 2 },
         'screen and (min-width: 480px) and (max-width: 640px)': { columns: 3 },
@@ -81,6 +82,13 @@
       savvior.init(this.selector1, this.settings);
       // Assert
       expect(savvior.ready()).toEqual([this.selector1]);
+    });
+
+    it('is initialised on multiple grids at once', function() {
+      // Arrange
+      var count = document.querySelectorAll('.grid').length;
+      // Act & Assert
+      expect(savvior.init(this.selectorMultiple, this.settings).grids['.grid'].grids.length).toEqual(count);
     });
 
     it('is initialised on a hidden container', function() {
