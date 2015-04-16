@@ -5,6 +5,7 @@
 _not yet released_
 
 * Tweaked init logic to throw errors instead of failing silently
+* #8 - Support for multiple grids with a single selector
 
 ### v0.4.2
 
