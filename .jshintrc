@@ -27,8 +27,6 @@
     "isArray": true,
     "isFunction": true,
     "isEmpty": true,
-    "Grid": false,
-    "GridHandler": false,
     "Savvior": false
   }
 }
