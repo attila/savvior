@@ -1,12 +1,16 @@
-/*global jasmine: true, describe: true, beforeEach: true, it: true, expect: true, spyOn: true */
+/*global jasmine: true, loadFixtures: true, describe: true, beforeEach: true, it: true, expect: true, spyOn: true */
 (function() {
   'use strict';
 
   var handler;
 
+  jasmine.getFixtures().fixturesPath = './fixtures';
+
   describe('GridHandler', function() {
 
     beforeEach(function() {
+      loadFixtures('grids.html');
+
       this.selector = '#myGrid';
       this.settings = {
         'screen and (max-width: 480px)': { columns: 2 },

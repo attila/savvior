@@ -1,71 +1,53 @@
-<!DOCTYPE HTML>
+<!doctype html>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Jasmine Spec Runner v2.0.0</title>
+  <meta charset="utf-8">
+  <title>Jasmine Spec Runner</title>
+  <link rel="shortcut icon" type="image/png" href=".grunt/grunt-contrib-jasmine/jasmine_favicon.png">
 
-  <link rel="shortcut icon" type="image/png" href="lib/jasmine-2.0.0/jasmine_favicon.png">
-  <link rel="stylesheet" type="text/css" href="lib/jasmine-2.0.0/jasmine.css">
+  <link rel="stylesheet" type="text/css" href="../.grunt/grunt-contrib-jasmine/jasmine.css">
 
-  <script type="text/javascript" src="lib/jasmine-2.0.0/jasmine.js"></script>
-  <script type="text/javascript" src="lib/jasmine-2.0.0/jasmine-html.js"></script>
-  <script type="text/javascript" src="lib/jasmine-2.0.0/boot.js"></script>
 
-  <!-- include source files here... -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
-  <script type="text/javascript" src="lib/jasmine-jquery/jasmine-jquery.js"></script>
-  <script type="text/javascript" src="lib/enquirejs/enquire.js"></script>
-  <script type="text/javascript" src="../src/Helpers.js"></script>
-  <script type="text/javascript" src="../src/Grid.js"></script>
-  <script type="text/javascript" src="../src/GridHandler.js"></script>
-  <script type="text/javascript" src="../src/GridDispatch.js"></script>
-
-  <!-- include spec files here... -->
-  <script type="text/javascript" src="GridSpec.js"></script>
-  <script type="text/javascript" src="HiddenGridSpec.js"></script>
-  <script type="text/javascript" src="GridHandlerSpec.js"></script>
-  <script type="text/javascript" src="GridDispatchSpec.js"></script>
 </head>
-
 <body>
-<div id="myGrid">
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-</div>
-<div id="anotherGrid">
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-</div>
-<div id="hiddenGrid" style="display:none">
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-  <div class="box"><span></span></div>
-</div>
+
+  
+  <script src="../.grunt/grunt-contrib-jasmine/es5-shim.js"></script>
+  
+  <script src="../.grunt/grunt-contrib-jasmine/jasmine.js"></script>
+  
+  <script src="../.grunt/grunt-contrib-jasmine/jasmine-html.js"></script>
+  
+  <script src="../.grunt/grunt-contrib-jasmine/json2.js"></script>
+  
+  <script src="../.grunt/grunt-contrib-jasmine/boot.js"></script>
+  
+  <script src="../node_modules/jquery/dist/jquery.js"></script>
+  
+  <script src="lib/jasmine-jquery/jasmine-jquery.js"></script>
+  
+  <script src="lib/enquirejs/enquire.js"></script>
+  
+  <script src="../.grunt/grunt-contrib-jasmine/src/Grid.js"></script>
+  
+  <script src="../.grunt/grunt-contrib-jasmine/src/GridDispatch.js"></script>
+  
+  <script src="../.grunt/grunt-contrib-jasmine/src/GridHandler.js"></script>
+  
+  <script src="../.grunt/grunt-contrib-jasmine/src/Helpers.js"></script>
+  
+  <script src="GridDispatchSpec.js"></script>
+  
+  <script src="GridHandlerSpec.js"></script>
+  
+  <script src="GridSpec.js"></script>
+  
+  <script src="HiddenGridSpec.js"></script>
+  
+  <script src="../.grunt/grunt-contrib-jasmine/grunt-template-jasmine-istanbul/reporter.js"></script>
+  
+  <script src="../.grunt/grunt-contrib-jasmine/reporter.js"></script>
+  
+
 </body>
 </html>

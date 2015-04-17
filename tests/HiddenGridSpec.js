@@ -1,4 +1,4 @@
-/*global jQuery: true, describe: true, beforeEach: true, afterEach: true, it: true, expect: true, spyOn:true, spyOnEvent:true */
+/*global jQuery: true, jasmine: true, loadFixtures: true, describe: true, beforeEach: true, afterEach: true, it: true, expect: true, spyOn:true, spyOnEvent:true */
 (function(global, $) {
   'use strict';
 
@@ -8,9 +8,13 @@
   var columns;
   var grid;
 
+  jasmine.getFixtures().fixturesPath = './fixtures';
+
   describe('Grid in hidden container', function() {
 
     beforeEach(function(done) {
+      loadFixtures('grids.html');
+
       selector = '#hiddenGrid';
       element = document.querySelector(selector),
       children = $(element).children().length,

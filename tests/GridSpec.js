@@ -1,16 +1,20 @@
-/*global jQuery: true, describe: true, beforeEach: true, afterEach: true, it: true, expect: true, spyOn:true, spyOnEvent:true */
+/*global jasmine: true, loadFixtures: true, jQuery: true, describe: true, beforeEach: true, afterEach: true, it: true, expect: true, spyOn:true, spyOnEvent:true */
 (function(global, $) {
   'use strict';
 
-  var selector,
-    element,
-    children,
-    columns,
-    grid;
+  var selector;
+  var element;
+  var children;
+  var columns;
+  var grid;
+
+  jasmine.getFixtures().fixturesPath = './fixtures';
 
   describe('Grid', function() {
 
     beforeEach(function(done) {
+      loadFixtures('grids.html');
+
       selector = '#myGrid';
       element = document.querySelector(selector),
       children = $(element).children().length,

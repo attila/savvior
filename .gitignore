@@ -48,6 +48,6 @@ node_modules
 
 # build script local files
 .grunt
-_SpecRunner.html
+coverage
 build/buildinfo.properties
 build/config/buildinfo.properties

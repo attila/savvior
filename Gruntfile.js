@@ -50,27 +50,37 @@ module.exports = function(grunt) {
       options: {
         jshintrc : '.jshintrc'
       },
-      files: ['Gruntfile.js', '<%= concat.dist.src %>']
+      files: [
+        './*.js',
+        'src/*.js',
+        'tests/*Spec.js'
+      ]
     },
 
     jasmine: {
-      dist: {
+      options: {
+        specs: ['tests/*Spec.js'],
+        vendor: [
+          'node_modules/jquery/dist/jquery.js',
+          'tests/lib/jasmine-jquery/jasmine-jquery.js',
+          'tests/lib/enquirejs/enquire.js'
+        ],
+        keepRunner: true
+      },
+
+      coverage: {
+        src: ['src/*.js'],
         options: {
-          specs: [
-            'tests/GridSpec.js',
-            'tests/HiddenGridSpec.js',
-            'tests/GridHandlerSpec.js',
-            'tests/GridDispatchSpec.js',
-          ],
-          outfile: 'tests/_SpecRunner.html',
-          template: 'tests/templates/DefaultRunner.tmpl',
-          vendor: [
-            'node_modules/jquery/dist/jquery.js',
-            'tests/lib/jasmine-jquery/jasmine-jquery.js',
-            'tests/lib/enquirejs/enquire.js'
-          ]
-        },
-        src: 'src/*.js'
+          outfile: 'tests/SpecRunner.html',
+          template: require('grunt-template-jasmine-istanbul'),
+          templateOptions: {
+            report: [
+              { type: 'html', options: { dir: 'coverage' } },
+              { type: 'text-summary' },
+            ],
+            coverage: 'bin/coverage/coverage.json'
+          }
+        }
       }
     },
 
@@ -87,19 +97,36 @@ module.exports = function(grunt) {
       },
     },
 
+    bytesize: {
+      dist: {
+        src: 'dist/*'
+      }
+    },
+
     watch: {
       files: ['<%= jshint.files %>', 'tests/**/*.js', 'tests/**/*.tmpl'],
       tasks: ['default']
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-bytesize');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-umd');
 
-  grunt.registerTask('test', ['jshint', 'jasmine']);
-  grunt.registerTask('default', ['test', 'concat', 'umd', 'uglify']);
+  grunt.registerTask('test', [
+    'jshint',
+    'jasmine'
+  ]);
+  grunt.registerTask('default', [
+    'test',
+    'concat',
+    'umd',
+    'uglify',
+    'bytesize'
+  ]);
+  grunt.registerTask('test:coverage', ['jasmine:coverage']);
 };
