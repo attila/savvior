@@ -1,3 +1,4 @@
+/* global GridHandler: true */
 /**
  * Implements the top level registration of grid handlers and manages their
  * states.
@@ -76,9 +77,7 @@ GridDispatch.prototype.destroy = function(selectors, callback) {
   };
 
   each(grids, function(selector) {
-    if (self.grids[selector] !== undefined) {
-      self.grids[selector].unregister(done);
-    }
+    (self.grids[selector]) && self.grids[selector].unregister(done);
   });
 };
 
@@ -94,9 +93,7 @@ GridDispatch.prototype.ready = function(selector) {
   if (selector === undefined) {
     var grids = [];
     for (var key in this.grids) {
-      if (this.grids[key].ready) {
-        grids.push(key);
-      }
+      (this.grids[key].ready) && grids.push(key);
     }
     return (grids.length > 0) ? grids : false;
   }
