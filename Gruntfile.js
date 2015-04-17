@@ -76,6 +76,7 @@ module.exports = function(grunt) {
           outfile: 'tests/SpecRunner.html',
           template: require('grunt-template-jasmine-istanbul'),
           templateOptions: {
+            files: ['src/**.js', '!src/Helpers.js'],
             report: [
               { type: 'html', options: { dir: 'coverage' } },
               { type: 'text-summary' },
@@ -107,7 +108,7 @@ module.exports = function(grunt) {
 
     watch: {
       files: ['<%= jshint.files %>', 'tests/**/*.js', 'tests/**/*.tmpl'],
-      tasks: ['default']
+      tasks: ['test']
     }
   });
 

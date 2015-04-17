@@ -41,11 +41,12 @@ Grid.prototype.setup = function(columns, callback) {
  * Create columns with the configured classes and add a list of items to them.
  */
 Grid.prototype.addColumns = function(items, columns) {
-  var columnClasses = ['column', 'size-1of'+ columns],
-    columnsFragment = document.createDocumentFragment(),
-    columnsItems = [],
-    i = columns,
-    childSelector;
+  var columnClasses = ['column', 'size-1of'+ columns];
+  var columnsFragment = document.createDocumentFragment();
+  var columnsItems = [];
+  var i = columns;
+  var childSelector;
+  var column, rowsFragment;
 
   while (i-- !== 0) {
     childSelector = '[data-columns] > *:nth-child(' + columns + 'n-' + i + ')';
@@ -53,8 +54,8 @@ Grid.prototype.addColumns = function(items, columns) {
   }
 
   each(columnsItems, function(rows) {
-    var column = document.createElement('div'),
-      rowsFragment = document.createDocumentFragment();
+    column = document.createElement('div');
+    rowsFragment = document.createDocumentFragment();
 
     column.className = columnClasses.join(' ');
 

@@ -1,15 +1,15 @@
-/*global GridDispatch: true, jasmine: true, loadFixtures: true, describe: true, beforeEach: true, it: true, expect: true, spyOn:true, spyOnEvent:true */
-(function(global) {
+/* global jQuery: true, GridDispatch: true, GridHandler: true, jasmine: true, loadFixtures: true, describe: true, beforeEach: true, it: true, expect: true, spyOn:true, spyOnEvent:true */
+(function(global, $) {
   'use strict';
 
   var savvior;
+  var spyEvent;
 
   jasmine.getFixtures().fixturesPath = './fixtures';
 
   describe('GridDispatch', function() {
 
-    beforeEach(function() {
-      loadFixtures('grids.html');
+    beforeEach(function(done) {
 
       this.selector1 = '#myGrid';
       this.selector2 = '#anotherGrid';
@@ -21,21 +21,25 @@
         'screen and (min-width: 640px)': { columns: 4 }
       };
 
-      savvior = new GridDispatch();
+      $(document).ready(function() {
+        loadFixtures('grids.html');
+        savvior = new GridDispatch();
+        done();
+      });
     });
 
     describe('Constructor', function() {
 
       it('throws error if enquire is not present', function() {
         // Arrange
-        this.enquire = global.enquire;
-        global.enquire = undefined;
+        this.enquire = window.enquire;
+        window.enquire = undefined;
         // Act & assert
         expect(function() {
           new GridDispatch();
         }).toThrow();
         // Cleanup
-        global.enquire = this.enquire;
+        window.enquire = this.enquire;
       });
 
     });
@@ -64,13 +68,14 @@
         }).toThrow(new TypeError('Options must be an object'));
       });
 
-      it('throws TypeError when wrong type is given for options', function() {
+      it('throws TypeError when wrong type is given as options', function() {
         // Arrange
         var selector = this.selector1;
         // Act & Assert
         expect(function() {
           savvior.init(selector, 'dummy string');
-        }).toThrow(new TypeError('Options must be an object'));
+        })
+        .toThrow(new TypeError('Options must be an object'));
       });
 
       it('does not set up the same grid more than once', function() {
@@ -86,7 +91,7 @@
         expect(savvior.grids[this.selector1].fake).toBe(true);
       });
 
-      it('does not create a GridHandler if elements cannot be found', function() {
+      it('does not create a handler if elements are missing', function() {
         // Arrange
         var fakeSelector = '.idontexist';
         // Act
@@ -96,7 +101,7 @@
         expect(Object.keys(savvior.grids).length).toEqual(0);
       });
 
-      it('constructs GridHandler', function() {
+      it('constructs a handler', function() {
         // Arrange
         spyOn(GridHandler.prototype, 'register');
         // Act
@@ -106,14 +111,14 @@
         expect(GridHandler.prototype.register).toHaveBeenCalled();
       });
 
-      it('is initialises on multiple grids with class selector', function() {
+      it('creates multiple grids where appropriate', function() {
         // Arrange
         var count = document.querySelectorAll('.grid').length;
         // Act & Assert
         expect(savvior.init(this.selectorMultiple, this.settings).grids['.grid'].grids.length).toEqual(count);
       });
 
-      it('is initialised on a hidden container', function() {
+      it('creates grid in a hidden container', function() {
         // Act
         savvior.init(this.selector3, this.settings);
         // Assert
@@ -122,16 +127,17 @@
 
       it('dispatches event when ready', function() {
         // Arrange
-        spyOnEvent(global, 'savvior:init');
+        spyEvent = spyOnEvent(window, 'savvior:init');
+        // Act
         savvior.init(this.selector1, this.settings);
-        // Act & Assert
-        expect('savvior:init').toHaveBeenTriggeredOn(global);
+        // Assert
+        expect(spyEvent).toHaveBeenTriggered();
       });
 
     });
 
     describe('destroy', function() {
-      it('removes all GridHandler objects when destroyed without grid selectors', function(done) {
+      it('removes all handlers when destroyed without arguments', function(done) {
         // Arrange
         savvior.init(this.selector1, this.settings);
         savvior.init(this.selector2, this.settings);
@@ -143,7 +149,7 @@
         });
       });
 
-      it('removes selected GridHandler object when destroyed with argument', function(done) {
+      it('removes selected handler when destroyed with argument', function(done) {
         // Arrange
         var self = this;
         savvior.init(this.selector1, this.settings);
@@ -156,26 +162,13 @@
         });
       });
 
-      it('removes selected GridHandler object on a hidden container when destroyed', function(done) {
-        // Arrange
-        var self = this;
-        savvior.init(this.selector1, this.settings);
-        savvior.init(this.selector3, this.settings);
-        // Act & Assert
-        savvior.destroy([this.selector3], function() {
-          expect(savvior.grids[self.selector3]).not.toBeDefined();
-          expect(savvior.grids[self.selector1]).toBeDefined();
-          done();
-        });
-      });
-
       it('dispatches event on destroy', function(done) {
         // Arrange
-        spyOnEvent(global, 'savvior:destroy');
+        spyEvent = spyOnEvent(global, 'savvior:destroy');
         savvior.init(this.selector1, this.settings);
         // Act & Assert
         savvior.destroy([], function() {
-          expect('savvior:destroy').toHaveBeenTriggeredOn(global);
+          expect(spyEvent).toHaveBeenTriggered();
           done();
         });
       });
@@ -195,7 +188,7 @@
         expect(savvior.ready([this.selector3])).toBe(false);
       });
 
-      it('reports false to a ready call when no grids are set', function() {
+      it('reports false when no grids are ready', function() {
         // Assert
         expect(savvior.ready()).toBe(false);
       });
@@ -204,4 +197,4 @@
 
   });
 
-}(this));
+}(this, jQuery));
