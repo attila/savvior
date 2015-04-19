@@ -35,8 +35,7 @@ GridHandler.prototype.register = function() {
   });
 
   for (var mq in this.options) {
-    var handler = this.constructHandler(mq, this.options[mq]);
-    this.queryHandlers.push(handler);
+    this.queryHandlers.push(this.constructHandler(mq, this.options[mq]));
   }
 
   each(this.queryHandlers, function(h) {
@@ -127,11 +126,12 @@ GridHandler.prototype.gridMatch = function(mq) {
  * the object instance
  */
 GridHandler.prototype.unregister = function(callback) {
+  var self = this;
+
   each(this.queryHandlers, function(h) {
     enquire.unregister(h.mq);
   });
 
-  var self = this;
   each(this.grids, function(grid) {
     grid.restore(function() {
       // Cleanup

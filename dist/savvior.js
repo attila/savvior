@@ -48,16 +48,6 @@ function each(collection, fn) {
 }
 
 /**
- * Helper function for determining whether target object is an array
- *
- * @param target the object under test
- * @return {Boolean} true if array, false otherwise
- */
-function isArray(target) {
-  return Object.prototype.toString.apply(target) === '[object Array]';
-}
-
-/**
  * Helper function for determining whether target object is a function
  *
  * @param target the object under test
@@ -141,183 +131,180 @@ if (typeof window.CustomEvent !== 'function') {
  * @param {Boolean} Grid.status  Pointer to maintain the Grid status
  * @constructor
  */
-function Grid(element) {
+var Grid = function(element) {
   this.columns = null;
   this.element = element;
   this.status = false;
-}
-
-Grid.prototype = {
-
-  /**
-   * Set up the grid element and add columns
-   *
-   * @param  {Integer} columns    The number of columns to create on init
-   * @param  {Function} callback  Optional. Callback function to call when done
-   */
-  setup: function(columns, callback) {
-    // Do not act on hidden elements or if set already
-    if (!this.status) {
-      // Retrieve the list of items from the grid itself.
-      var self = this,
-        range = document.createRange(),
-        items = document.createElement('div');
-
-      range.selectNodeContents(this.element);
-      items.appendChild(range.extractContents());
-
-      window.requestAnimationFrame(function() {
-        addToDataset(items, 'columns', 0);
-        self.addColumns(items, columns);
-        self.status = true;
-
-        isFunction(callback) && callback(self);
-      });
-    }
-  },
-
-
-  /**
-   * Create columns with the configured classes and add a list of items to them.
-   */
-  addColumns: function(items, columns) {
-    var columnClasses = ['column', 'size-1of'+ columns],
-      columnsFragment = document.createDocumentFragment(),
-      columnsItems = [],
-      i = columns,
-      childSelector;
-
-    while (i-- !== 0) {
-      childSelector = '[data-columns] > *:nth-child(' + columns + 'n-' + i + ')';
-      columnsItems.push(items.querySelectorAll(childSelector));
-    }
-
-    each(columnsItems, function(rows) {
-      var column = document.createElement('div'),
-        rowsFragment = document.createDocumentFragment();
-
-      column.className = columnClasses.join(' ');
-
-      each(rows, function(row) {
-        rowsFragment.appendChild(row);
-      });
-      column.appendChild(rowsFragment);
-      columnsFragment.appendChild(column);
-    });
-
-    this.element.appendChild(columnsFragment);
-    addToDataset(this.element, 'columns', columns);
-    this.columns = columns;
-  },
-
-
-  /**
-   * Remove all the columns from a grid and prepare it for populating again.
-   *
-   * @param  Object grid The grid element object
-   * @return Object      A list of items sorted by the ordering of columns
-   */
-  removeColumns: function() {
-    var range = document.createRange(),
-      grid = this.element,
-      columns;
-
-    range.selectNodeContents(grid);
-
-    columns = Array.prototype.filter.call(range.extractContents().childNodes, function filterElements(node) {
-      return node instanceof window.HTMLElement;
-    });
-
-    var numberOfColumns = columns.length,
-      numberOfRowsInFirstColumn = columns[0].childNodes.length,
-      sortedRows = new Array(numberOfRowsInFirstColumn * numberOfColumns);
-
-    each(columns, function iterateColumns(column, columnIndex) {
-      each(column.children, function iterateRows(row, rowIndex) {
-        sortedRows[rowIndex * numberOfColumns + columnIndex] = row;
-      });
-    });
-
-    var container = document.createElement('div');
-    addToDataset(container, 'columns', 0);
-
-    sortedRows.filter(function(child) {
-      return !!child;
-    }).forEach(function(child) {
-      container.appendChild(child);
-    });
-
-    return container;
-  },
-
-
-  /**
-   * Remove all the columns from the grid, and add them again if the number of
-   * columns have changed.
-   *
-   * @param  {[type]}   newColumns The number of columns to transform the Grid
-   *   element to.
-   * @param  {Function} callback   Optional. Callback function to call when done
-   * @return {[type]}              [description]
-   */
-  redraw: function(newColumns, callback) {
-    var self = this,
-      eventDetails = {
-        element: self.element,
-        from: self.columns,
-        to: newColumns
-      },
-      matchEvent = new CustomEvent('savvior:redraw', {detail: eventDetails});
-
-    window.requestAnimationFrame(function() {
-      if (self.columns !== newColumns) {
-        self.addColumns(self.removeColumns(), newColumns);
-      }
-
-      window.dispatchEvent(matchEvent);
-      isFunction(callback) && callback(self);
-    });
-  },
-
-
-  /**
-   * Restore the Grid element to its original state
-   *
-   * @param  {Function} callback  Optional. Callback function to call when done
-   */
-  restore: function(callback) {
-    if (!this.status) {
-      isFunction(callback) && callback(false);
-      return false;
-    }
-
-    var self = this,
-      eventDetails = {
-        element: self.element,
-        from: self.columns
-      };
-
-    window.requestAnimationFrame(function() {
-      var fragment = document.createDocumentFragment(),
-        container = self.removeColumns(),
-        children = [],
-        restoreEvent = new CustomEvent('savvior:restore', {detail: eventDetails});
-
-      each(container.childNodes, function(item) {
-        children.push(item);
-      });
-      children.forEach(function(child) {
-        fragment.appendChild(child);
-      });
-      self.element.appendChild(fragment);
-      self.element.removeAttribute('data-columns');
-
-
-      window.dispatchEvent(restoreEvent);
-      isFunction(callback) && callback(self);
-    });
-  }
 };
+
+/**
+ * Set up the grid element and add columns
+ *
+ * @param  {Integer} columns    The number of columns to create on init
+ * @param  {Function} callback  Optional. Callback function to call when done
+ */
+Grid.prototype.setup = function(columns, callback) {
+  // Retrieve the list of items from the grid itself.
+  var self = this;
+  var range = document.createRange();
+  var items = document.createElement('div');
+
+  range.selectNodeContents(this.element);
+  items.appendChild(range.extractContents());
+
+  window.requestAnimationFrame(function() {
+    addToDataset(items, 'columns', 0);
+    self.addColumns(items, columns);
+    self.status = true;
+
+    isFunction(callback) && callback(self);
+  });
+};
+
+/**
+ * Create columns with the configured classes and add a list of items to them.
+ */
+Grid.prototype.addColumns = function(items, columns) {
+  var columnClasses = ['column', 'size-1of'+ columns];
+  var columnsFragment = document.createDocumentFragment();
+  var columnsItems = [];
+  var i = columns;
+  var childSelector;
+  var column, rowsFragment;
+
+  while (i-- !== 0) {
+    childSelector = '[data-columns] > *:nth-child(' + columns + 'n-' + i + ')';
+    columnsItems.push(items.querySelectorAll(childSelector));
+  }
+
+  each(columnsItems, function(rows) {
+    column = document.createElement('div');
+    rowsFragment = document.createDocumentFragment();
+
+    column.className = columnClasses.join(' ');
+
+    each(rows, function(row) {
+      rowsFragment.appendChild(row);
+    });
+    column.appendChild(rowsFragment);
+    columnsFragment.appendChild(column);
+  });
+
+  this.element.appendChild(columnsFragment);
+  addToDataset(this.element, 'columns', columns);
+  this.columns = columns;
+};
+
+/**
+ * Remove all the columns from a grid and prepare it for populating again.
+ *
+ * @param  Object grid The grid element object
+ * @return Object      A list of items sorted by the ordering of columns
+ */
+Grid.prototype.removeColumns = function() {
+  var range = document.createRange();
+  var container = document.createElement('div');
+  var sortedRows = [];
+  var columns;
+
+  range.selectNodeContents(this.element);
+
+  columns = Array.prototype.filter.call(range.extractContents().childNodes, function filterElements(node) {
+    return node instanceof window.HTMLElement;
+  });
+
+  sortedRows.length = columns[0].childNodes.length * columns.length;
+
+  each(columns, function iterateColumns(column, columnIndex) {
+    each(column.children, function iterateRows(row, rowIndex) {
+      sortedRows[rowIndex * columns.length + columnIndex] = row;
+    });
+  });
+
+  addToDataset(container, 'columns', 0);
+
+  sortedRows.filter(function(child) {
+    return !!child;
+  })
+  .forEach(function(child) {
+    container.appendChild(child);
+  });
+
+  return container;
+};
+
+
+/**
+ * Remove all the columns from the grid, and add them again if the number of
+ * columns have changed.
+ *
+ * @param  {[type]}   newColumns The number of columns to transform the Grid
+ *   element to.
+ * @param  {Function} callback   Optional. Callback function to call when done
+ * @return {[type]}              [description]
+ */
+Grid.prototype.redraw = function(newColumns, callback) {
+  var self = this;
+  var evt = new CustomEvent('savvior:redraw', {
+    detail: {
+      element: self.element,
+      from: self.columns,
+      to: newColumns
+    }
+  });
+
+  window.requestAnimationFrame(function() {
+    if (self.columns !== newColumns) {
+      self.addColumns(self.removeColumns(), newColumns);
+    }
+
+    window.dispatchEvent(evt);
+    isFunction(callback) && callback(self);
+  });
+};
+
+
+/**
+ * Restore the Grid element to its original state
+ *
+ * @param  {Function} callback  Optional. Callback function to call when done
+ */
+Grid.prototype.restore = function(callback) {
+  if (!this.status) {
+    isFunction(callback) && callback(false);
+    return false;
+  }
+
+  var self = this;
+  var fragment = document.createDocumentFragment();
+  var children = [];
+  var container;
+  var evt = new CustomEvent('savvior:restore', {
+    detail: {
+      element: self.element,
+      from: self.columns
+    }
+  });
+
+  window.requestAnimationFrame(function() {
+    container = self.removeColumns();
+
+    each(container.childNodes, function(item) {
+      children.push(item);
+    });
+
+    children.forEach(function(child) {
+      fragment.appendChild(child);
+    });
+
+    self.element.appendChild(fragment);
+    self.element.removeAttribute('data-columns');
+
+    window.dispatchEvent(evt);
+    isFunction(callback) && callback(self);
+  });
+};
+/* global Grid: true */
 /**
  * Implements the handling of a grid element.
  *
@@ -334,139 +321,135 @@ Grid.prototype = {
  * @param {Boolean} GridHandler.ready  Pointer to maintain the Grid status
  * @constructor
  */
-function GridHandler(selector, options) {
+var GridHandler = function(selector, options) {
   this.selector = selector;
   this.options = options;
   this.queryHandlers = [];
   this.grids = [];
   this.ready = false;
-}
-
-GridHandler.prototype = {
-
-  /**
-   * Register the Grid object instances and their enquire handlers.
-   */
-  register: function() {
-    var elements = document.querySelectorAll(this.selector);
-    var self = this;
-
-    each(elements, function(el) {
-      self.grids.push(new Grid(el));
-    });
-
-    for (var mq in this.options) {
-      var handler = this.constructHandler(mq, this.options[mq]);
-      this.queryHandlers.push(handler);
-    }
-
-    each(this.queryHandlers, function(h) {
-      enquire.register(h.mq, h.handler);
-    });
-
-    this.ready = true;
-
-    return this;
-  },
-
-
-  /**
-   * Helper function to construct enquire handler objects
-   *
-   * @param  {String} mq The media query to register
-   * @return {Object}    The handler object containing this.handler to
-   *   register with enquire
-   */
-  constructHandler: function(mq) {
-    var self = this;
-
-    return {
-      mq: mq,
-      handler: {
-        deferSetup: true,
-        setup: function() {
-          self.gridSetup(mq);
-        },
-        match: function() {
-          self.gridMatch(mq);
-        },
-        destroy: function() {
-          return;
-        }
-      }
-    };
-  },
-
-
-  /**
-   * Enquire setup callback
-   *
-   * @param  {[type]} mq The current query
-   */
-  gridSetup: function(mq) {
-    var self = this;
-    each(this.grids, function(grid) {
-      grid.setup(self.options[mq].columns, function() {
-        var eventDetails = {
-            element: (grid) ? grid.element : null,
-            columns: (grid) ? grid.columns : null,
-          },
-          evt = new CustomEvent('savvior:setup', {detail: eventDetails});
-        window.dispatchEvent(evt);
-      });
-    });
-  },
-
-
-  /**
-   * Enquire match callback
-   *
-   * @param  {[type]} mq The current query
-   */
-  gridMatch: function(mq) {
-    var self = this;
-
-    each(this.grids, function(grid) {
-      var eventDetails = {
-        element: grid.element,
-        from: grid.columns,
-        to: self.options[mq].columns,
-        query: mq
-      };
-      var evt = new CustomEvent('savvior:match', {detail: eventDetails});
-
-      grid.redraw(self.options[mq].columns, function() {
-        window.dispatchEvent(evt);
-      });
-    });
-  },
-
-
-  /**
-   * Restore the grid to its original state.
-   *
-   * This unregisters any previously registered enquire handlers and clears up
-   * the object instance
-   */
-  unregister: function(callback) {
-    each(this.queryHandlers, function(h) {
-      var cb = h.callbacks ? h.callbacks : undefined;
-      enquire.unregister(h.mq, cb);
-    });
-
-    var self = this;
-    each(this.grids, function(grid) {
-      grid.restore(function() {
-        // Cleanup
-        self.queryHandlers = [];
-        self.ready = false;
-
-        isFunction(callback) && callback(self);
-      });
-    });
-    self.grids = [];
-  }
 };
+
+/**
+ * Register the Grid object instances and their enquire handlers.
+ */
+GridHandler.prototype.register = function() {
+  var elements = document.querySelectorAll(this.selector);
+  var self = this;
+
+  each(elements, function(el) {
+    self.grids.push(new Grid(el));
+  });
+
+  for (var mq in this.options) {
+    this.queryHandlers.push(this.constructHandler(mq, this.options[mq]));
+  }
+
+  each(this.queryHandlers, function(h) {
+    enquire.register(h.mq, h.handler);
+  });
+
+  this.ready = true;
+
+  return this;
+};
+
+/**
+ * Helper function to construct enquire handler objects
+ *
+ * @param  {String} mq The media query to register
+ * @return {Object}    The handler object containing this.handler to
+ *   register with enquire
+ */
+GridHandler.prototype.constructHandler = function(mq) {
+  var self = this;
+
+  return {
+    mq: mq,
+    handler: {
+      deferSetup: true,
+      setup: function() {
+        self.gridSetup(mq);
+      },
+      match: function() {
+        self.gridMatch(mq);
+      },
+      destroy: function() {
+        return;
+      }
+    }
+  };
+};
+
+/**
+ * Enquire setup callback
+ *
+ * @param  {[type]} mq The current query
+ */
+GridHandler.prototype.gridSetup = function(mq) {
+  var self = this;
+  var eventDetails, evt;
+
+  each(this.grids, function(grid) {
+    grid.setup(self.options[mq].columns, function() {
+      eventDetails = {
+        element: grid.element,
+        columns: grid.columns,
+      };
+      evt = new CustomEvent('savvior:setup', {detail: eventDetails});
+      window.dispatchEvent(evt);
+    });
+  });
+};
+
+/**
+ * Enquire match callback
+ *
+ * @param  {[type]} mq The current query
+ */
+GridHandler.prototype.gridMatch = function(mq) {
+  var self = this;
+  var eventDetails, evt;
+
+  each(this.grids, function(grid) {
+    eventDetails = {
+      element: grid.element,
+      from: grid.columns,
+      to: self.options[mq].columns,
+      query: mq
+    };
+    evt = new CustomEvent('savvior:match', {detail: eventDetails});
+
+    grid.redraw(self.options[mq].columns, function() {
+      window.dispatchEvent(evt);
+    });
+  });
+};
+
+/**
+ * Restore the grid to its original state.
+ *
+ * This unregisters any previously registered enquire handlers and clears up
+ * the object instance
+ */
+GridHandler.prototype.unregister = function(callback) {
+  var self = this;
+
+  each(this.queryHandlers, function(h) {
+    enquire.unregister(h.mq);
+  });
+
+  each(this.grids, function(grid) {
+    grid.restore(function() {
+      // Cleanup
+      self.queryHandlers = [];
+      self.ready = false;
+
+      isFunction(callback) && callback(self);
+    });
+  });
+  self.grids = [];
+};
+/* global GridHandler: true */
 /**
  * Implements the top level registration of grid handlers and manages their
  * states.
@@ -545,9 +528,7 @@ GridDispatch.prototype.destroy = function(selectors, callback) {
   };
 
   each(grids, function(selector) {
-    if (self.grids[selector] !== undefined) {
-      self.grids[selector].unregister(done);
-    }
+    (self.grids[selector]) && self.grids[selector].unregister(done);
   });
 };
 
@@ -563,9 +544,7 @@ GridDispatch.prototype.ready = function(selector) {
   if (selector === undefined) {
     var grids = [];
     for (var key in this.grids) {
-      if (this.grids[key].ready) {
-        grids.push(key);
-      }
+      (this.grids[key].ready) && grids.push(key);
     }
     return (grids.length > 0) ? grids : false;
   }

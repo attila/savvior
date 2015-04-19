@@ -78,32 +78,31 @@ Grid.prototype.addColumns = function(items, columns) {
  * @return Object      A list of items sorted by the ordering of columns
  */
 Grid.prototype.removeColumns = function() {
-  var range = document.createRange(),
-    grid = this.element,
-    columns;
+  var range = document.createRange();
+  var container = document.createElement('div');
+  var sortedRows = [];
+  var columns;
 
-  range.selectNodeContents(grid);
+  range.selectNodeContents(this.element);
 
   columns = Array.prototype.filter.call(range.extractContents().childNodes, function filterElements(node) {
     return node instanceof window.HTMLElement;
   });
 
-  var numberOfColumns = columns.length,
-    numberOfRowsInFirstColumn = columns[0].childNodes.length,
-    sortedRows = new Array(numberOfRowsInFirstColumn * numberOfColumns);
+  sortedRows.length = columns[0].childNodes.length * columns.length;
 
   each(columns, function iterateColumns(column, columnIndex) {
     each(column.children, function iterateRows(row, rowIndex) {
-      sortedRows[rowIndex * numberOfColumns + columnIndex] = row;
+      sortedRows[rowIndex * columns.length + columnIndex] = row;
     });
   });
 
-  var container = document.createElement('div');
   addToDataset(container, 'columns', 0);
 
   sortedRows.filter(function(child) {
     return !!child;
-  }).forEach(function(child) {
+  })
+  .forEach(function(child) {
     container.appendChild(child);
   });
 
@@ -121,20 +120,21 @@ Grid.prototype.removeColumns = function() {
  * @return {[type]}              [description]
  */
 Grid.prototype.redraw = function(newColumns, callback) {
-  var self = this,
-    eventDetails = {
+  var self = this;
+  var evt = new CustomEvent('savvior:redraw', {
+    detail: {
       element: self.element,
       from: self.columns,
       to: newColumns
-    },
-    matchEvent = new CustomEvent('savvior:redraw', {detail: eventDetails});
+    }
+  });
 
   window.requestAnimationFrame(function() {
     if (self.columns !== newColumns) {
       self.addColumns(self.removeColumns(), newColumns);
     }
 
-    window.dispatchEvent(matchEvent);
+    window.dispatchEvent(evt);
     isFunction(callback) && callback(self);
   });
 };
@@ -151,29 +151,32 @@ Grid.prototype.restore = function(callback) {
     return false;
   }
 
-  var self = this,
-    eventDetails = {
+  var self = this;
+  var fragment = document.createDocumentFragment();
+  var children = [];
+  var container;
+  var evt = new CustomEvent('savvior:restore', {
+    detail: {
       element: self.element,
       from: self.columns
-    };
+    }
+  });
 
   window.requestAnimationFrame(function() {
-    var fragment = document.createDocumentFragment(),
-      container = self.removeColumns(),
-      children = [],
-      restoreEvent = new CustomEvent('savvior:restore', {detail: eventDetails});
+    container = self.removeColumns();
 
     each(container.childNodes, function(item) {
       children.push(item);
     });
+
     children.forEach(function(child) {
       fragment.appendChild(child);
     });
+
     self.element.appendChild(fragment);
     self.element.removeAttribute('data-columns');
 
-
-    window.dispatchEvent(restoreEvent);
+    window.dispatchEvent(evt);
     isFunction(callback) && callback(self);
   });
 };
