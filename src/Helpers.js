@@ -17,15 +17,15 @@ function addToDataset(element, key, value) {
  *
  * @param collection
  * @param fn
+ * @param scope
  */
-function each(collection, fn) {
+function each(collection, fn, scope) {
   var i = 0,
-    length = collection.length,
     cont;
 
-  for (i; i < length; i++) {
-    cont = fn(collection[i], i);
-    if(cont === false) {
+  for (i; i < collection.length; i++) {
+    cont = fn.call(scope, collection[i], i);
+    if (cont === false) {
       break; //allow early exit
     }
   }

@@ -33,15 +33,15 @@ function addToDataset(element, key, value) {
  *
  * @param collection
  * @param fn
+ * @param scope
  */
-function each(collection, fn) {
+function each(collection, fn, scope) {
   var i = 0,
-    length = collection.length,
     cont;
 
-  for (i; i < length; i++) {
-    cont = fn(collection[i], i);
-    if(cont === false) {
+  for (i; i < collection.length; i++) {
+    cont = fn.call(scope, collection[i], i);
+    if (cont === false) {
       break; //allow early exit
     }
   }
@@ -145,7 +145,6 @@ var Grid = function(element) {
  */
 Grid.prototype.setup = function(columns, callback) {
   // Retrieve the list of items from the grid itself.
-  var self = this;
   var range = document.createRange();
   var items = document.createElement('div');
 
@@ -154,11 +153,11 @@ Grid.prototype.setup = function(columns, callback) {
 
   window.requestAnimationFrame(function() {
     addToDataset(items, 'columns', 0);
-    self.addColumns(items, columns);
-    self.status = true;
+    this.addColumns(items, columns);
+    this.status = true;
 
-    isFunction(callback) && callback(self);
-  });
+    isFunction(callback) && callback(this);
+  }.bind(this));
 };
 
 /**
@@ -244,23 +243,22 @@ Grid.prototype.removeColumns = function() {
  * @return {[type]}              [description]
  */
 Grid.prototype.redraw = function(newColumns, callback) {
-  var self = this;
   var evt = new CustomEvent('savvior:redraw', {
     detail: {
-      element: self.element,
-      from: self.columns,
+      element: this.element,
+      from: this.columns,
       to: newColumns
     }
   });
 
   window.requestAnimationFrame(function() {
-    if (self.columns !== newColumns) {
-      self.addColumns(self.removeColumns(), newColumns);
+    if (this.columns !== newColumns) {
+      this.addColumns(this.removeColumns(), newColumns);
     }
 
     window.dispatchEvent(evt);
-    isFunction(callback) && callback(self);
-  });
+    isFunction(callback) && callback(this);
+  }.bind(this));
 };
 
 
@@ -269,25 +267,24 @@ Grid.prototype.redraw = function(newColumns, callback) {
  *
  * @param  {Function} callback  Optional. Callback function to call when done
  */
-Grid.prototype.restore = function(callback) {
+Grid.prototype.restore = function(callback, scope) {
   if (!this.status) {
     isFunction(callback) && callback(false);
     return false;
   }
 
-  var self = this;
   var fragment = document.createDocumentFragment();
   var children = [];
   var container;
   var evt = new CustomEvent('savvior:restore', {
     detail: {
-      element: self.element,
-      from: self.columns
+      element: this.element,
+      from: this.columns
     }
   });
 
   window.requestAnimationFrame(function() {
-    container = self.removeColumns();
+    container = this.removeColumns();
 
     each(container.childNodes, function(item) {
       children.push(item);
@@ -297,12 +294,12 @@ Grid.prototype.restore = function(callback) {
       fragment.appendChild(child);
     });
 
-    self.element.appendChild(fragment);
-    self.element.removeAttribute('data-columns');
+    this.element.appendChild(fragment);
+    this.element.removeAttribute('data-columns');
 
     window.dispatchEvent(evt);
-    isFunction(callback) && callback(self);
-  });
+    isFunction(callback) && callback.call(scope, scope || this);
+  }.bind(this));
 };
 /* global Grid: true */
 /**
@@ -333,12 +330,9 @@ var GridHandler = function(selector, options) {
  * Register the Grid object instances and their enquire handlers.
  */
 GridHandler.prototype.register = function() {
-  var elements = document.querySelectorAll(this.selector);
-  var self = this;
-
-  each(elements, function(el) {
-    self.grids.push(new Grid(el));
-  });
+  each(document.querySelectorAll(this.selector), function(el) {
+    this.grids.push(new Grid(el, this.options));
+  }, this);
 
   for (var mq in this.options) {
     this.queryHandlers.push(this.constructHandler(mq, this.options[mq]));
@@ -361,18 +355,19 @@ GridHandler.prototype.register = function() {
  *   register with enquire
  */
 GridHandler.prototype.constructHandler = function(mq) {
-  var self = this;
-
   return {
     mq: mq,
     handler: {
       deferSetup: true,
+
       setup: function() {
-        self.gridSetup(mq);
-      },
+        this.gridSetup(mq);
+      }.bind(this),
+
       match: function() {
-        self.gridMatch(mq);
-      },
+        this.gridMatch(mq);
+      }.bind(this),
+
       destroy: function() {
         return;
       }
@@ -386,19 +381,19 @@ GridHandler.prototype.constructHandler = function(mq) {
  * @param  {[type]} mq The current query
  */
 GridHandler.prototype.gridSetup = function(mq) {
-  var self = this;
-  var eventDetails, evt;
+  var evt;
 
   each(this.grids, function(grid) {
-    grid.setup(self.options[mq].columns, function() {
-      eventDetails = {
-        element: grid.element,
-        columns: grid.columns,
-      };
-      evt = new CustomEvent('savvior:setup', {detail: eventDetails});
+    grid.setup(this.options[mq].columns, function() {
+      evt = new CustomEvent('savvior:setup', {
+        detail: {
+          element: grid.element,
+          columns: grid.columns,
+        }
+      });
       window.dispatchEvent(evt);
     });
-  });
+  }, this);
 };
 
 /**
@@ -407,22 +402,22 @@ GridHandler.prototype.gridSetup = function(mq) {
  * @param  {[type]} mq The current query
  */
 GridHandler.prototype.gridMatch = function(mq) {
-  var self = this;
-  var eventDetails, evt;
+  var evt;
 
   each(this.grids, function(grid) {
-    eventDetails = {
-      element: grid.element,
-      from: grid.columns,
-      to: self.options[mq].columns,
-      query: mq
-    };
-    evt = new CustomEvent('savvior:match', {detail: eventDetails});
+    evt = new CustomEvent('savvior:match', {
+      detail: {
+        element: grid.element,
+        from: grid.columns,
+        to: this.options[mq].columns,
+        query: mq
+      }
+    });
 
-    grid.redraw(self.options[mq].columns, function() {
+    grid.redraw(this.options[mq].columns, function() {
       window.dispatchEvent(evt);
     });
-  });
+  }, this);
 };
 
 /**
@@ -431,9 +426,7 @@ GridHandler.prototype.gridMatch = function(mq) {
  * This unregisters any previously registered enquire handlers and clears up
  * the object instance
  */
-GridHandler.prototype.unregister = function(callback) {
-  var self = this;
-
+GridHandler.prototype.unregister = function(callback, scope) {
   each(this.queryHandlers, function(h) {
     enquire.unregister(h.mq);
   });
@@ -441,13 +434,14 @@ GridHandler.prototype.unregister = function(callback) {
   each(this.grids, function(grid) {
     grid.restore(function() {
       // Cleanup
-      self.queryHandlers = [];
-      self.ready = false;
+      this.queryHandlers = [];
+      this.ready = false;
 
-      isFunction(callback) && callback(self);
-    });
-  });
-  self.grids = [];
+      isFunction(callback) && callback.call(this, scope || this);
+    }, this);
+  }, this);
+
+  this.grids = [];
 };
 /* global GridHandler: true */
 /**
@@ -515,21 +509,20 @@ GridDispatch.prototype.init = function(selector, options) {
  */
 GridDispatch.prototype.destroy = function(selectors, callback) {
   var evt = new CustomEvent('savvior:destroy');
-  var self = this;
   var grids = (selectors === undefined || isEmpty(selectors)) ? Object.keys(this.grids) : selectors;
   var total = grids.length;
   var counter = 0;
   var done = function(args) {
-    delete self.grids[grids[counter]];
+    delete this.grids[grids[counter]];
     if (++counter === total) {
       window.dispatchEvent(evt);
-      isFunction(callback) && callback(args);
+      isFunction(callback) && callback.call(args, this);
     }
-  };
+  }.bind(this);
 
   each(grids, function(selector) {
-    (self.grids[selector]) && self.grids[selector].unregister(done);
-  });
+    (this.grids[selector]) && this.grids[selector].unregister(done);
+  }, this);
 };
 
 /**

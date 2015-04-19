@@ -64,21 +64,20 @@ GridDispatch.prototype.init = function(selector, options) {
  */
 GridDispatch.prototype.destroy = function(selectors, callback) {
   var evt = new CustomEvent('savvior:destroy');
-  var self = this;
   var grids = (selectors === undefined || isEmpty(selectors)) ? Object.keys(this.grids) : selectors;
   var total = grids.length;
   var counter = 0;
   var done = function(args) {
-    delete self.grids[grids[counter]];
+    delete this.grids[grids[counter]];
     if (++counter === total) {
       window.dispatchEvent(evt);
-      isFunction(callback) && callback(args);
+      isFunction(callback) && callback.call(args, this);
     }
-  };
+  }.bind(this);
 
   each(grids, function(selector) {
-    (self.grids[selector]) && self.grids[selector].unregister(done);
-  });
+    (this.grids[selector]) && this.grids[selector].unregister(done);
+  }, this);
 };
 
 /**

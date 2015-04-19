@@ -21,7 +21,6 @@ var Grid = function(element) {
  */
 Grid.prototype.setup = function(columns, callback) {
   // Retrieve the list of items from the grid itself.
-  var self = this;
   var range = document.createRange();
   var items = document.createElement('div');
 
@@ -30,11 +29,11 @@ Grid.prototype.setup = function(columns, callback) {
 
   window.requestAnimationFrame(function() {
     addToDataset(items, 'columns', 0);
-    self.addColumns(items, columns);
-    self.status = true;
+    this.addColumns(items, columns);
+    this.status = true;
 
-    isFunction(callback) && callback(self);
-  });
+    isFunction(callback) && callback(this);
+  }.bind(this));
 };
 
 /**
@@ -120,23 +119,22 @@ Grid.prototype.removeColumns = function() {
  * @return {[type]}              [description]
  */
 Grid.prototype.redraw = function(newColumns, callback) {
-  var self = this;
   var evt = new CustomEvent('savvior:redraw', {
     detail: {
-      element: self.element,
-      from: self.columns,
+      element: this.element,
+      from: this.columns,
       to: newColumns
     }
   });
 
   window.requestAnimationFrame(function() {
-    if (self.columns !== newColumns) {
-      self.addColumns(self.removeColumns(), newColumns);
+    if (this.columns !== newColumns) {
+      this.addColumns(this.removeColumns(), newColumns);
     }
 
     window.dispatchEvent(evt);
-    isFunction(callback) && callback(self);
-  });
+    isFunction(callback) && callback(this);
+  }.bind(this));
 };
 
 
@@ -145,25 +143,24 @@ Grid.prototype.redraw = function(newColumns, callback) {
  *
  * @param  {Function} callback  Optional. Callback function to call when done
  */
-Grid.prototype.restore = function(callback) {
+Grid.prototype.restore = function(callback, scope) {
   if (!this.status) {
     isFunction(callback) && callback(false);
     return false;
   }
 
-  var self = this;
   var fragment = document.createDocumentFragment();
   var children = [];
   var container;
   var evt = new CustomEvent('savvior:restore', {
     detail: {
-      element: self.element,
-      from: self.columns
+      element: this.element,
+      from: this.columns
     }
   });
 
   window.requestAnimationFrame(function() {
-    container = self.removeColumns();
+    container = this.removeColumns();
 
     each(container.childNodes, function(item) {
       children.push(item);
@@ -173,10 +170,10 @@ Grid.prototype.restore = function(callback) {
       fragment.appendChild(child);
     });
 
-    self.element.appendChild(fragment);
-    self.element.removeAttribute('data-columns');
+    this.element.appendChild(fragment);
+    this.element.removeAttribute('data-columns');
 
     window.dispatchEvent(evt);
-    isFunction(callback) && callback(self);
-  });
+    isFunction(callback) && callback.call(scope, scope || this);
+  }.bind(this));
 };
