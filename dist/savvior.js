@@ -135,6 +135,8 @@ var Grid = function(element) {
   this.columns = null;
   this.element = element;
   this.status = false;
+  this.currentFilter = null;
+  this.filtered = document.createDocumentFragment();
 };
 
 /**
@@ -142,12 +144,14 @@ var Grid = function(element) {
  *
  * @param  {Integer} columns    The number of columns to create on init
  * @param  {Function} callback  Optional. Callback function to call when done
+ * @todo   fix docs
  */
-Grid.prototype.setup = function(columns, callback) {
+Grid.prototype.setup = function(options, callback) {
   // Run this only once on a grid.
   if (this.status) {
     return false;
   }
+
   // Retrieve the list of items from the grid itself.
   var range = document.createRange();
   var items = document.createElement('div');
@@ -157,7 +161,8 @@ Grid.prototype.setup = function(columns, callback) {
 
   window.requestAnimationFrame(function() {
     addToDataset(items, 'columns', 0);
-    this.addColumns(items, columns);
+
+    this.addColumns(items, options);
     this.status = true;
 
     isFunction(callback) && callback(this);
@@ -167,16 +172,19 @@ Grid.prototype.setup = function(columns, callback) {
 /**
  * Create columns with the configured classes and add a list of items to them.
  */
-Grid.prototype.addColumns = function(items, columns) {
-  var columnClasses = ['column', 'size-1of'+ columns];
+Grid.prototype.addColumns = function(items, options) {
+  var columnClasses = ['column', 'size-1of'+ options.columns];
   var columnsFragment = document.createDocumentFragment();
   var columnsItems = [];
-  var i = columns;
+  var i = options.columns;
   var childSelector;
+  // var column, rowsFragment, index, filtered, nodeList;
   var column, rowsFragment;
 
+  items = this.filterItems(items, options.filter);
+
   while (i-- !== 0) {
-    childSelector = '[data-columns] > *:nth-child(' + columns + 'n-' + i + ')';
+    childSelector = '[data-columns] > *:nth-child(' + options.columns + 'n-' + i + ')';
     columnsItems.push(items.querySelectorAll(childSelector));
   }
 
@@ -194,8 +202,34 @@ Grid.prototype.addColumns = function(items, columns) {
   });
 
   this.element.appendChild(columnsFragment);
-  addToDataset(this.element, 'columns', columns);
-  this.columns = columns;
+  addToDataset(this.element, 'columns', options.columns);
+  this.columns = options.columns;
+};
+
+/**
+ * Filter items if needed
+ * @param  {[type]} items  [description]
+ * @param  {[type]} filter [description]
+ * @return {[type]}        [description]
+ */
+Grid.prototype.filterItems = function(items, filter) {
+  if (!filter) {
+    return items;
+  }
+
+  var index, filtered, nodeList;
+
+  if (filter) {
+    nodeList = Array.prototype.slice.call(items.children);
+    filtered = items.querySelectorAll('[data-columns] > ' + filter);
+    each(filtered, function(item) {
+      index = (nodeList.indexOf(item));
+      this.filtered.appendChild(item);
+      addToDataset(item, 'position', index);
+    }, this);
+  }
+
+  return items;
 };
 
 /**
@@ -246,18 +280,21 @@ Grid.prototype.removeColumns = function() {
  * @param  {Function} callback   Optional. Callback function to call when done
  * @return {[type]}              [description]
  */
-Grid.prototype.redraw = function(newColumns, callback) {
+Grid.prototype.redraw = function(newOptions, callback) {
   var evt = new CustomEvent('savvior:redraw', {
     detail: {
       element: this.element,
       from: this.columns,
-      to: newColumns
+      to: newOptions.columns,
+      filter: newOptions.filter || null
     }
   });
+  var items;
 
   window.requestAnimationFrame(function() {
-    if (this.columns !== newColumns) {
-      this.addColumns(this.removeColumns(), newColumns);
+    if (this.columns !== newOptions.columns) {
+      items = this.restoreFiltered(this.removeColumns());
+      this.addColumns(items, newOptions);
     }
 
     window.dispatchEvent(evt);
@@ -265,6 +302,28 @@ Grid.prototype.redraw = function(newColumns, callback) {
   }.bind(this));
 };
 
+
+/**
+ * Restore filtered items
+ * @param  {[type]} container [description]
+ * @return {[type]}           [description]
+ */
+Grid.prototype.restoreFiltered = function(container) {
+  if (!this.filtered.children) {
+    return container;
+  }
+
+  var allItems = container;
+  var pos;
+
+  each(this.filtered.querySelectorAll('[data-position]'), function(item) {
+    pos = Number(item.getAttribute('data-position'));
+    item.removeAttribute('data-position');
+    allItems.insertBefore(item, allItems.children[pos]);
+  });
+
+  return container;
+};
 
 /**
  * Restore the Grid element to its original state
@@ -288,7 +347,7 @@ Grid.prototype.restore = function(callback, scope) {
   });
 
   window.requestAnimationFrame(function() {
-    container = this.removeColumns();
+    container = this.restoreFiltered(this.removeColumns());
 
     each(container.childNodes, function(item) {
       children.push(item);
@@ -388,11 +447,12 @@ GridHandler.prototype.gridSetup = function(mq) {
   var evt;
 
   each(this.grids, function(grid) {
-    grid.setup(this.options[mq].columns, function() {
+    grid.setup(this.options[mq], function() {
       evt = new CustomEvent('savvior:setup', {
         detail: {
           element: grid.element,
           columns: grid.columns,
+          filter: this.filter
         }
       });
       window.dispatchEvent(evt);
@@ -418,7 +478,7 @@ GridHandler.prototype.gridMatch = function(mq) {
       }
     });
 
-    grid.redraw(this.options[mq].columns, function() {
+    grid.redraw(this.options[mq], function() {
       window.dispatchEvent(evt);
     });
   }, this);

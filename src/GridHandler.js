@@ -81,11 +81,12 @@ GridHandler.prototype.gridSetup = function(mq) {
   var evt;
 
   each(this.grids, function(grid) {
-    grid.setup(this.options[mq].columns, function() {
+    grid.setup(this.options[mq], function() {
       evt = new CustomEvent('savvior:setup', {
         detail: {
           element: grid.element,
           columns: grid.columns,
+          filter: this.filter
         }
       });
       window.dispatchEvent(evt);
@@ -111,7 +112,7 @@ GridHandler.prototype.gridMatch = function(mq) {
       }
     });
 
-    grid.redraw(this.options[mq].columns, function() {
+    grid.redraw(this.options[mq], function() {
       window.dispatchEvent(evt);
     });
   }, this);
