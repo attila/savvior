@@ -56,20 +56,22 @@
         });
       });
 
+      it('prevents setting up a grid more than once', function() {
+        // Act & Assert
+        expect(grid.setup(columns)).toBe(false);
+      });
+
       it('sets data-columns attribute', function() {
         // Assert
         expect($(element).data('columns')).toEqual(3);
       });
 
-      it('adds columns to grid', function(done) {
-        // Act & Assert
-        grid.setup(columns, function() {
-          var newChildren = $(selector).children().length;
+      it('adds columns to grid', function() {
+        // Assert
+        var newChildren = $(selector).children().length;
 
-          expect(newChildren).toEqual(columns);
-          expect(newChildren).not.toEqual(children);
-          done();
-        });
+        expect(newChildren).toEqual(columns);
+        expect(newChildren).not.toEqual(children);
       });
 
       it('adds class names to grid columns', function() {

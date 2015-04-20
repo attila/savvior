@@ -20,6 +20,10 @@ var Grid = function(element) {
  * @param  {Function} callback  Optional. Callback function to call when done
  */
 Grid.prototype.setup = function(columns, callback) {
+  // Run this only once on a grid.
+  if (this.status) {
+    return false;
+  }
   // Retrieve the list of items from the grid itself.
   var range = document.createRange();
   var items = document.createElement('div');
