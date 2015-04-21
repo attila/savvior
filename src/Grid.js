@@ -192,7 +192,9 @@ Grid.prototype.restoreFiltered = function(container) {
   each(this.filtered.querySelectorAll('[data-position]'), function(item) {
     pos = Number(item.getAttribute('data-position'));
     item.removeAttribute('data-position');
-    allItems.insertBefore(item, allItems.children[pos]);
+    // Insert the element back to its original position. ReferenceNode is now
+    // set to null if the element should become the last one.
+    allItems.insertBefore(item, (allItems.children[pos] || null));
   });
 
   return container;
