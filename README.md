@@ -9,7 +9,7 @@ A Javascript solution for multicolumn layouts, an alternative to Salvattore or M
 * __Requirements:__ Savvior depends on on `window.matchMedia` and [enquire.js](http://wicky.nillia.ms/enquire.js/).
 * __Integrates easily:__ No automatic execution, init the script when YOU think it should happen. For further integration, custom events are dispatched after initialisation or redrawing the layout.
 * __Sensible configuration:__ No CSS-driven configuration can make parsing CSS on a CDN troubled, just pass the element selector and a single config object to init() and it's done.
-* __Lightweight:__ ~1.95KB minified and gzipped
+* __Lightweight:__ ~2.2 kB minified and gzipped
 * __Wide browser support:__ most modern devices/browsers and IE9+
 
 ## Usage
@@ -95,6 +95,24 @@ Modernizr.load([{
   savvior.init("#myGrid", {
     "screen and (max-width: 20em)": { columns: 2 },
     "screen and (min-width: 20em) and (max-width: 40em)": { columns: 3 },
+    "screen and (min-width: 40em)": { columns: 4 },
+  });
+````
+
+Grid items can be excluded by using `filter` in the options. This takes a
+string consumable by `document.querySelectorAll()`. This is processed in each
+mediaMatch breakpoint, examples:
+
+````javascript
+  savvior.init("#myGrid", {
+    "screen and (max-width: 20em)": {
+      columns: 2,
+      filter: '#excludeme'
+    },
+    "screen and (min-width: 20em) and (max-width: 40em)": {
+      columns: 3,
+      filter: '#excludeme, .filter-these-as-well'
+    },
     "screen and (min-width: 40em)": { columns: 4 },
   });
 ````

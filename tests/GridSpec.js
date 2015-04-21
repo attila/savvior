@@ -1,4 +1,4 @@
-/*global jasmine: true, loadFixtures: true, jQuery: true, Grid: true, describe: true, beforeEach: true, afterEach: true, it: true, expect: true, spyOn:true, spyOnEvent:true */
+/* global jasmine: true, loadFixtures: true, jQuery: true, Grid: true, describe: true, beforeEach: true, afterEach: true, it: true, expect: true, spyOn:true, spyOnEvent:true */
 (function(global, $) {
   'use strict';
 
@@ -51,14 +51,14 @@
 
       beforeEach(function(done) {
         grid = new Grid(element);
-        grid.setup(columns, function() {
+        grid.setup({columns: columns}, function() {
           done();
         });
       });
 
       it('prevents setting up a grid more than once', function() {
         // Act & Assert
-        expect(grid.setup(columns)).toBe(false);
+        expect(grid.setup({columns: 1})).toBe(false);
       });
 
       it('sets data-columns attribute', function() {
@@ -86,7 +86,7 @@
         // Arrange
         spyEvent = spyOnEvent(global, 'savvior:redraw');
         // Act & Assert
-        grid.redraw(columns + 1, function() {
+        grid.redraw({columns: 4}, function() {
           expect(spyEvent).toHaveBeenTriggered();
           done();
         });
@@ -94,8 +94,8 @@
 
       it('adds new columns when redrawing', function(done) {
         // Act & Assert
-        grid.redraw(columns + 1, function() {
-          expect($(element).children().length).toEqual(columns + 1);
+        grid.redraw({columns: 4}, function() {
+          expect($(element).children().length).toEqual(4);
           done();
         });
       });
@@ -104,7 +104,7 @@
         // Arrange
         spyOn(grid, 'addColumns').and.callThrough();
         // Act & Assert
-        grid.redraw(columns, function() {
+        grid.redraw({columns: columns}, function() {
           expect(grid.addColumns).not.toHaveBeenCalled();
           done();
         });
@@ -125,6 +125,55 @@
         grid.restore(function() {
           expect(spyEvent).toHaveBeenTriggered();
           done();
+        });
+      });
+
+    });
+
+    describe('with filtering', function() {
+
+      var columns = 3;
+      var filter = '.filterme';
+
+      beforeEach(function() {
+        this.options = {
+          columns: columns,
+          filter: filter
+        };
+
+        grid = new Grid(element);
+      });
+
+      it('removes filtered elements from the grid', function(done) {
+        // Arrange
+        var filter = this.options.filter;
+        var originalChildren = grid.element.querySelectorAll('.box').length;
+        var filteredChildren = grid.element.querySelectorAll(filter).length;
+        // Act & Assert
+        grid.setup(this.options, function() {
+          expect(element.querySelectorAll('.box').length).toEqual(originalChildren - filteredChildren);
+          expect(element.querySelectorAll(filter).length).toEqual(0);
+          expect(this.filtered.childNodes.length).toEqual(filteredChildren);
+          done();
+        });
+      });
+
+      it('restores filtered elements in their correct positions', function(done) {
+        // Arrange
+        var positions = [];
+        var newPositions = [];
+        $(element).find(filter).each(function(key, val) {
+          positions.push($(val).index());
+        });
+        // Act & Assert
+        grid.setup(this.options, function() {
+          grid.restore(function() {
+            $(element).find(filter).each(function(key, val) {
+              newPositions.push($(val).index());
+            });
+            expect(positions).toEqual(newPositions);
+            done();
+          }, this);
         });
       });
 

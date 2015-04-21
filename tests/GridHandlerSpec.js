@@ -130,7 +130,7 @@
       it('unregisters handlers', function(done) {
         // Arrange
         handler.register();
-        handler.grids[0].setup(2, function() {
+        handler.grids[0].setup({columns: 2}, function() {
           var length = handler.queryHandlers.length;
           // Act & Assert
           handler.unregister(function() {
