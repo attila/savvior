@@ -1,6 +1,6 @@
 # Savvior
 
-[![Build Status](https://travis-ci.org/attila/savvior.svg?branch=prototype)](https://travis-ci.org/attila/savvior)
+[![Build Status](https://travis-ci.org/attila/savvior.svg?branch=prototype)](https://travis-ci.org/attila/savvior) [![Code Climate](https://codeclimate.com/github/attila/savvior/badges/gpa.svg)](https://codeclimate.com/github/attila/savvior) [![Test Coverage](https://codeclimate.com/github/attila/savvior/badges/coverage.svg)](https://codeclimate.com/github/attila/savvior)
 
 A Javascript solution for multicolumn layouts, an alternative to Salvattore or Masonry, without CSS driven configuration or absolute CSS positioning. A large part of the code is heavily inspired by the excellent [Salvattore](http://salvattore.com), however it fixes many of its quirks.
 
