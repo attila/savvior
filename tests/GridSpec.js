@@ -1,5 +1,4 @@
-/* global jasmine: true, loadFixtures: true, jQuery: true, Grid: true, describe: true, beforeEach: true, afterEach: true, it: true, xit: true, expect: true, spyOn:true, spyOnEvent:true */
-/* jshint unused: false */
+/* global jasmine: true, loadFixtures: true, jQuery: true, Grid: true, describe: true, beforeEach: true, afterEach: true, it: true, expect: true, spyOn:true, spyOnEvent:true */
 (function(global, $) {
   'use strict';
 
@@ -133,12 +132,16 @@
 
     describe('with filtering', function() {
 
+      var columns = 3;
+      var filter = '.filterme';
+
       beforeEach(function() {
-        grid = new Grid(element);
         this.options = {
-          columns: 3,
-          filter: '.filterme'
+          columns: columns,
+          filter: filter
         };
+
+        grid = new Grid(element);
       });
 
       it('removes filtered elements from the grid', function(done) {
@@ -155,15 +158,20 @@
         });
       });
 
-      xit('restores filtered elements in their correct position', function(done) {
+      it('restores filtered elements in their correct positions', function(done) {
         // Arrange
-        var originalChildren = element.querySelectorAll('.box').length;
+        var positions = [];
+        var newPositions = [];
+        $(element).find(filter).each(function(key, val) {
+          positions.push($(val).index());
+        });
         // Act & Assert
         grid.setup(this.options, function() {
           grid.restore(function() {
-            expect(this.filtered.childNodes.length).toEqual(0);
-            expect(element.querySelectorAll('.box').length).toEqual(originalChildren);
-            // @todo check previously filtered elements' positions.
+            $(element).find(filter).each(function(key, val) {
+              newPositions.push($(val).index());
+            });
+            expect(positions).toEqual(newPositions);
             done();
           }, this);
         });
