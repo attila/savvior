@@ -134,17 +134,16 @@ if (typeof window.CustomEvent !== 'function') {
 var Grid = function(element) {
   this.columns = null;
   this.element = element;
-  this.status = false;
-  this.currentFilter = null;
   this.filtered = document.createDocumentFragment();
+  this.status = false;
 };
 
 /**
  * Set up the grid element and add columns
  *
- * @param  {Integer} columns    The number of columns to create on init
+ * @param  {Object}   options   Object containing configuration options.
+ *                              Currently `columns` and `filter` are supported.
  * @param  {Function} callback  Optional. Callback function to call when done
- * @todo   fix docs
  */
 Grid.prototype.setup = function(options, callback) {
   // Run this only once on a grid.
@@ -165,7 +164,7 @@ Grid.prototype.setup = function(options, callback) {
     this.addColumns(items, options);
     this.status = true;
 
-    isFunction(callback) && callback(this);
+    isFunction(callback) && callback.call(this);
   }.bind(this));
 };
 
@@ -178,10 +177,10 @@ Grid.prototype.addColumns = function(items, options) {
   var columnsItems = [];
   var i = options.columns;
   var childSelector;
-  // var column, rowsFragment, index, filtered, nodeList;
   var column, rowsFragment;
 
-  items = this.filterItems(items, options.filter);
+  // Filter out items when a filter is given.
+  this.filterItems(items, options.filter);
 
   while (i-- !== 0) {
     childSelector = '[data-columns] > *:nth-child(' + options.columns + 'n-' + i + ')';
@@ -207,7 +206,8 @@ Grid.prototype.addColumns = function(items, options) {
 };
 
 /**
- * Filter items if needed
+ * Filter items in a grid
+ *
  * @param  {[type]} items  [description]
  * @param  {[type]} filter [description]
  * @return {[type]}        [description]
@@ -219,15 +219,13 @@ Grid.prototype.filterItems = function(items, filter) {
 
   var index, filtered, nodeList;
 
-  if (filter) {
-    nodeList = Array.prototype.slice.call(items.children);
-    filtered = items.querySelectorAll('[data-columns] > ' + filter);
-    each(filtered, function(item) {
-      index = (nodeList.indexOf(item));
-      this.filtered.appendChild(item);
-      addToDataset(item, 'position', index);
-    }, this);
-  }
+  nodeList = Array.prototype.slice.call(items.children);
+  filtered = items.querySelectorAll('[data-columns] > ' + filter);
+  each(filtered, function(item) {
+    index = (nodeList.indexOf(item));
+    this.filtered.appendChild(item);
+    addToDataset(item, 'position', index);
+  }, this);
 
   return items;
 };
@@ -270,7 +268,6 @@ Grid.prototype.removeColumns = function() {
   return container;
 };
 
-
 /**
  * Remove all the columns from the grid, and add them again if the number of
  * columns have changed.
@@ -302,14 +299,14 @@ Grid.prototype.redraw = function(newOptions, callback) {
   }.bind(this));
 };
 
-
 /**
- * Restore filtered items
+ * Restore filtered items in a grid
+ *
  * @param  {[type]} container [description]
  * @return {[type]}           [description]
  */
 Grid.prototype.restoreFiltered = function(container) {
-  if (!this.filtered.children) {
+  if (this.filtered.childNodes.length === 0) {
     return container;
   }
 

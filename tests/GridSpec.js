@@ -1,4 +1,5 @@
-/*global jasmine: true, loadFixtures: true, jQuery: true, Grid: true, describe: true, beforeEach: true, afterEach: true, it: true, expect: true, spyOn:true, spyOnEvent:true */
+/* global jasmine: true, loadFixtures: true, jQuery: true, Grid: true, describe: true, beforeEach: true, afterEach: true, it: true, xit: true, expect: true, spyOn:true, spyOnEvent:true */
+/* jshint unused: false */
 (function(global, $) {
   'use strict';
 
@@ -125,6 +126,46 @@
         grid.restore(function() {
           expect(spyEvent).toHaveBeenTriggered();
           done();
+        });
+      });
+
+    });
+
+    describe('with filtering', function() {
+
+      beforeEach(function() {
+        grid = new Grid(element);
+        this.options = {
+          columns: 3,
+          filter: '.filterme'
+        };
+      });
+
+      it('removes filtered elements from the grid', function(done) {
+        // Arrange
+        var filter = this.options.filter;
+        var originalChildren = grid.element.querySelectorAll('.box').length;
+        var filteredChildren = grid.element.querySelectorAll(filter).length;
+        // Act & Assert
+        grid.setup(this.options, function() {
+          expect(element.querySelectorAll('.box').length).toEqual(originalChildren - filteredChildren);
+          expect(element.querySelectorAll(filter).length).toEqual(0);
+          expect(this.filtered.childNodes.length).toEqual(filteredChildren);
+          done();
+        });
+      });
+
+      xit('restores filtered elements in their correct position', function(done) {
+        // Arrange
+        var originalChildren = element.querySelectorAll('.box').length;
+        // Act & Assert
+        grid.setup(this.options, function() {
+          grid.restore(function() {
+            expect(this.filtered.childNodes.length).toEqual(0);
+            expect(element.querySelectorAll('.box').length).toEqual(originalChildren);
+            // @todo check previously filtered elements' positions.
+            done();
+          }, this);
         });
       });
 
