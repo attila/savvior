@@ -51,3 +51,4 @@ node_modules
 coverage
 build/buildinfo.properties
 build/config/buildinfo.properties
+tests/SpecRunner.html

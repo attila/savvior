@@ -1,5 +1,8 @@
+/* jshint node: true */
 module.exports = function(grunt) {
   'use strict';
+
+  var path = require('path');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -13,8 +16,7 @@ module.exports = function(grunt) {
                ' */\n'
       },
       outputDir: 'dist',
-      output : '<%= meta.outputDir %>/<%= pkg.name %>',
-      outputMin : '<%= meta.outputDir %>/<%= pkg.name.replace("js", "min.js") %>'
+      output : '<%= meta.outputDir %>/<%= pkg.name %>'
     },
 
     concat: {
@@ -34,9 +36,6 @@ module.exports = function(grunt) {
     },
 
     uglify: {
-      options: {
-        report: 'gzip'
-      },
       dist: {
         options: {
           banner: '<%= meta.banner.dist %>'
@@ -63,27 +62,26 @@ module.exports = function(grunt) {
       options: {
         specs: ['tests/*Spec.js'],
         vendor: [
-          'node_modules/jquery/dist/jquery.js',
-          'tests/lib/jasmine-jquery/jasmine-jquery.js',
-          'tests/lib/enquirejs/enquire.js'
+          require.resolve('enquire.js'),
+          require.resolve('jquery'),
+          path.join(__dirname, 'node_modules', 'jasmine-jquery', 'lib', 'jasmine-jquery.js')
         ],
         keepRunner: true
       },
 
       coverage: {
-        src: ['src/*.js'],
+        src: ['src/**/*.js'],
         options: {
-          display: 'short',
           summary: true,
           outfile: 'tests/SpecRunner.html',
           template: require('grunt-template-jasmine-istanbul'),
           templateOptions: {
-            files: ['src/**.js', '!src/Helpers.js'],
+            files: ['src/**/*.js', '!src/polyfills/*'],
             report: [
-              { type: 'html', options: { dir: 'coverage' } },
-              { type: 'text-summary' },
+              { type: 'lcov', options: { dir: 'coverage' } },
+              { type: 'text-summary' }
             ],
-            coverage: 'bin/coverage/coverage.json'
+            coverage: 'coverage/coverage.json'
           }
         }
       }
@@ -104,7 +102,7 @@ module.exports = function(grunt) {
 
     bytesize: {
       dist: {
-        src: 'dist/*'
+        src: '<%= meta.output %>.min.js'
       }
     },
 
@@ -122,16 +120,26 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-umd');
 
-  grunt.registerTask('test', [
-    'jshint',
-    'jasmine'
+  grunt.registerTask('pre-build', [
+    'jshint'
   ]);
-  grunt.registerTask('default', [
-    'test',
+  grunt.registerTask('build', [
     'concat',
     'umd',
-    'uglify',
+    'uglify'
+  ]);
+  grunt.registerTask('post-build', [
+    'test',
     'bytesize'
   ]);
-  grunt.registerTask('test:coverage', ['jasmine:coverage']);
+  grunt.registerTask('test', [
+    'jasmine'
+  ]);
+
+  // Meta tasks
+  grunt.registerTask('default', [
+    'pre-build',
+    'build',
+    'post-build'
+  ]);
 };
