@@ -120,7 +120,8 @@
         // Act
         handler.gridMatch(Object.keys(this.settings)[0]);
         // Assert
-        expect(handler.grids[0].redraw.calls.count()).toEqual(1);
+        expect(handler.grids[0].redraw.calls.any()).toBe(true);
+        expect(handler.grids[0].redraw.calls.argsFor(0)).toContain(this.settings[Object.keys(this.settings)[0]]);
       });
 
     });
