@@ -23,6 +23,7 @@ module.exports = function(grunt) {
       },
       dist: {
         src: [
+          'src/polyfills/*.js',
           'src/Helpers.js',
           'src/Grid.js',
           'src/GridHandler.js',
@@ -52,8 +53,9 @@ module.exports = function(grunt) {
       },
       files: [
         './*.js',
-        'src/*.js',
-        'tests/*Spec.js'
+        'src/**/*.js',
+        '!src/polyfills/*',
+        'tests/**/*Spec.js'
       ]
     },
 
