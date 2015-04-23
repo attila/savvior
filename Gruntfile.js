@@ -96,6 +96,7 @@ module.exports = function(grunt) {
         indent: '  ',
         deps: {
           'default': ['enquire'],
+          cjs: ['enquire.js']
         }
       },
     },
