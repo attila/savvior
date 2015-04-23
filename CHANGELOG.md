@@ -1,6 +1,6 @@
 # Changes
 
-## 0.5.0
+## v0.5.0
 
 * #9 - Added option to exclude specific items from Grid
 * #8 - Support for multiple grids with a single selector
