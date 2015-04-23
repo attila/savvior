@@ -1,6 +1,6 @@
 # Changes
 
-## 0.5.x
+## 0.5.0
 
 _not yet released_
 
@@ -8,6 +8,7 @@ _not yet released_
 * #8 - Support for multiple grids with a single selector
 * Tweaked init logic to throw errors instead of failing silently
 * Use Function.prototype methods to maintain scope
+* Published npm and bower packages
 
 ### v0.4.2
 

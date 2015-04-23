@@ -45,10 +45,11 @@ intermediate
 publish
 .idea
 node_modules
+bower_components
+coverage
 
 # build script local files
 .grunt
-coverage
 build/buildinfo.properties
 build/config/buildinfo.properties
 tests/SpecRunner.html

@@ -8,7 +8,7 @@
     // Node. Does not work with strict CommonJS, but
     // only CommonJS-like environments that support module.exports,
     // like Node.
-    module.exports = factory(require("enquire"));
+    module.exports = factory(require("enquire.js"));
   } else {
     root['savvior'] = factory(enquire);
   }
@@ -67,7 +67,7 @@ if (typeof window.CustomEvent !== 'function') {
 /*jshint unused:false */
 
 function addToDataset(element, key, value, forceCompat) {
-  // Use dataset function or a fallback for <IE10
+  // Use dataset property or a fallback if unsupported.
   if (forceCompat || !element.dataset) {
     element.setAttribute('data-' + key, value);
   }

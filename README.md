@@ -12,6 +12,22 @@ A Javascript solution for multicolumn layouts, an alternative to Salvattore or M
 * __Lightweight:__ ~2.2 kB minified and gzipped
 * __Wide browser support:__ most modern devices/browsers and IE9+
 
+## Installation
+
+Install it via [npm](https://npmjs.com) for your Browserify-based project
+
+```
+npm install savvior
+```
+
+Install it via [Bower](http://bower.io)
+
+```
+bower install savvior
+```
+
+Or just grab the latest release from the [Releases page](https://github.com/attila/savvior/releases)
+
 ## Usage
 
 Please refer to the [Examples](https://github.com/attila/savvior-examples) for detailed usage information.
@@ -29,44 +45,40 @@ Add some CSS to support the layout when multiple columns are created, e.g
 
 ### Load the JavaScript
 
-#### Load it synchronously
+#### CommonJS
 
-Just add these before your closing `<body>` tag.
+In your Browserify projects you can require the module as usual:
 
-````html
-<!--[if IE 9]>
-<script src="/path/to/media-match.js"></script>
-<![endif]-->
-<script src="/path/to/enquire.js"></script>
-<script src="/path/to/savvior.js"></script>
+````js
+var savvior = require('savvior');
 ````
 
-#### Load it asynchronously
+#### using AMD/Require.js
 
-In the `<head>`:
+In your configuration:
 
-##### using as an AMD module, for example via Require.js
-
-````javascript
-// Configure at least the paths for your modules
+````js
+// Configure paths
 requirejs.config({
   paths: {
     enquire: 'path/to/enquire',
     savvior: 'path/to/savvior'
   }
 });
+```
 
+Then in your project:
+
+```js
 require(['savvior', 'domReady!'], function(savvior) {
-  // Enquire is a dependency of savvior so you can initialize it right here.
-  // You'll need to load your own polyfills though.
-  savvior.init('#myGrid', {
-    "screen and (max-width: 20em)": { columns: 2 },
-    "screen and (min-width: 20em)": { columns: 3 },
-  });
+  // Initialise savvior here.
+  //
+  // Enquire is a dependency of savvior which should already be loaded by Require
+  // You will need to load your own polyfills though.
 });
 ````
 
-##### using Modernizr
+#### using Modernizr
 
 ````html
 <script type="text/javascript">
@@ -88,8 +100,20 @@ Modernizr.load([{
 </script>
 ````
 
+#### Using a plain script tag
 
-#### Initialise
+Just add these before your `</body>`.
+
+````html
+<!--[if IE 9]>
+<script src="/path/to/media-match.js"></script>
+<![endif]-->
+<script src="/path/to/enquire.js"></script>
+<script src="/path/to/savvior.js"></script>
+````
+
+
+### Initialise
 
 ````javascript
   savvior.init("#myGrid", {
@@ -117,7 +141,7 @@ mediaMatch breakpoint, examples:
   });
 ````
 
-#### Get status
+### Get status
 
 ````javascript
   savvior.ready();
@@ -126,7 +150,7 @@ mediaMatch breakpoint, examples:
   // returns true
 ````
 
-#### Destroy
+### Destroy
 
 ````javascript
   // destroy all instances
@@ -137,7 +161,27 @@ mediaMatch breakpoint, examples:
 
 ## History of changes
 
-See CHANGELOG.md
+See [CHANGELOG](https://github.com/attila/savvior/blob/master/CHANGELOG.md)
+
+## Contributing
+
+If you find an bug or a problem please open an issue.
+
+This project uses Grunt for running the builds and tests. The module uses an UMD
+wrapper to retain compatibility with CommonJS and AMD module formats.
+Tests are run by Jasmine in PhantomJS.
+
+### Install the development environment
+
+To install the development dependencies, make sure you have
+[nodejs](http://nodejs.org) installed, then:
+
+1. Install grunt-cli with `npm i grunt-cli -g`
+2. Install development dependencies with `npm i`
+3. Build the project by running `grunt`
+
+Pull requests for new features or bug fixes are most welcome, just make sure it
+conforms the current coding  style of the project.
 
 ## Development
 
@@ -145,4 +189,4 @@ Development is sponsored by [Dennis Interactive](http://www.dennis.co.uk/) and [
 
 ## License
 
-License: MIT (http://www.opensource.org/licenses/mit-license.php)
+License: MIT (See [LICENSE](https://github.com/attila/savvior/blob/master/LICENSE) for details)
