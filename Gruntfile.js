@@ -110,10 +110,20 @@ module.exports = function(grunt) {
     watch: {
       files: ['<%= jshint.files %>', 'tests/**/*.js', 'tests/**/*.tmpl'],
       tasks: ['default']
+    },
+
+    clean: {
+      dist: [
+        '.grunt',
+        'coverage',
+        'tests/SpecRunner.html',
+      ]
     }
+
   });
 
   grunt.loadNpmTasks('grunt-bytesize');
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -122,7 +132,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-umd');
 
   grunt.registerTask('pre-build', [
-    'jshint'
+    'test'
   ]);
   grunt.registerTask('build', [
     'concat',
@@ -130,10 +140,10 @@ module.exports = function(grunt) {
     'uglify'
   ]);
   grunt.registerTask('post-build', [
-    'test',
     'bytesize'
   ]);
   grunt.registerTask('test', [
+    'jshint',
     'jasmine'
   ]);
 
