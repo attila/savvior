@@ -10,6 +10,10 @@
   "dependencies": {
     "enquire": "~2.1.1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/attila/savvior.git"
+  },
   "keywords": [
     "savvior",
     "grid",
