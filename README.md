@@ -185,8 +185,6 @@ conforms the current coding  style of the project.
 
 ## Development
 
-Development is sponsored by [Dennis Interactive](http://www.dennis.co.uk/) and [Front Seed Labs](http://frontseed.com/)
+Project led and maintained by [Attila Beregszaszi](http://attilab.com/)
 
-## License
-
-License: MIT (See [LICENSE](https://github.com/attila/savvior/blob/master/LICENSE) for details)
+Development sponsored by [Dennis Publishing](http://www.dennis.co.uk/) and [Front Seed Labs](http://frontseed.com/)
