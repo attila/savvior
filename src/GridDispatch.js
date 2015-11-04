@@ -99,3 +99,26 @@ GridDispatch.prototype.ready = function(selector) {
 
   return (this.grids[selector]) ? this.grids[selector].ready : false;
 };
+
+GridDispatch.prototype.append = function (selector, elements, callback) {
+  if (!this.grids[selector]) {
+    throw new Error('Grid does not exist.');
+  }
+
+  if (elements instanceof Array) {
+    each(elements, function (el) {
+      if (!(el instanceof Node)) {
+        throw new Error('Items appended must be Nodes, Arrays of Nodes or NodeLists.');
+      }
+    });
+  }
+  else if (!(elements instanceof Node) && !(elements instanceof NodeList)) {
+    throw new Error('Items appended must be Nodes, Arrays of Nodes or NodeLists.');
+  }
+
+  each(this.grids[selector].grids, function(grid) {
+    grid.append(elements, callback);
+  });
+
+  return this;
+};

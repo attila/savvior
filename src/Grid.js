@@ -239,3 +239,26 @@ Grid.prototype.restore = function(callback, scope) {
     isFunction(callback) && callback.call(scope, scope || this);
   }.bind(this));
 };
+
+Grid.prototype.append = function (elements, callback) {
+  window.requestAnimationFrame(function() {
+    var items = this.restoreFiltered(this.removeColumns());
+
+    if (elements instanceof NodeList) {
+      each(elements, function (el) {
+        items.appendChild(el);
+      });
+    }
+    else {
+      items.appendChild(elements);
+    }
+
+    this.addColumns(items, {
+      columns: this.columns,
+      filter: this.filter
+    });
+
+    isFunction(callback) && callback(this);
+  }.bind(this));
+
+};
