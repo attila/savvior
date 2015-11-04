@@ -1,6 +1,6 @@
 # Savvior
 
-[![Build Status](https://travis-ci.org/attila/savvior.svg?branch=prototype)](https://travis-ci.org/attila/savvior) [![Code Climate](https://codeclimate.com/github/attila/savvior/badges/gpa.svg)](https://codeclimate.com/github/attila/savvior) [![Test Coverage](https://codeclimate.com/github/attila/savvior/badges/coverage.svg)](https://codeclimate.com/github/attila/savvior)
+[![Build Status](https://travis-ci.org/attila/savvior.svg?branch=master)](https://travis-ci.org/attila/savvior) [![Code Climate](https://codeclimate.com/github/attila/savvior/badges/gpa.svg)](https://codeclimate.com/github/attila/savvior) [![Test Coverage](https://codeclimate.com/github/attila/savvior/badges/coverage.svg)](https://codeclimate.com/github/attila/savvior)
 
 A Javascript solution for multicolumn layouts, an alternative to Salvattore or Masonry, without CSS driven configuration or absolute CSS positioning. A large part of the code is heavily inspired by the excellent [Salvattore](http://salvattore.com), however it fixes many of its quirks.
 
@@ -8,7 +8,7 @@ A Javascript solution for multicolumn layouts, an alternative to Salvattore or M
 
 * __Requirements:__ Savvior depends on on `window.matchMedia` and [enquire.js](http://wicky.nillia.ms/enquire.js/).
 * __Integrates easily:__ No automatic execution, init the script when YOU think it should happen. For further integration, custom events are dispatched after initialisation or redrawing the layout.
-* __Sensible configuration:__ No CSS-driven configuration can make parsing CSS on a CDN troubled, just pass the element selector and a single config object to init() and it's done.
+* __Sensible configuration:__ CSS-driven configuration can make parsing CSS on a CDN troublesome, just pass the element selector instead and a single config object to init() and it's done.
 * __Lightweight:__ ~2.2 kB minified and gzipped
 * __Wide browser support:__ most modern devices/browsers and IE9+
 
@@ -78,28 +78,6 @@ require(['savvior', 'domReady!'], function(savvior) {
 });
 ````
 
-#### using Modernizr
-
-````html
-<script type="text/javascript">
-var mq = Modernizr.mq("only all");
-Modernizr.load([{
-  test: mq && !window.matchMedia, // Media query support wihtout matchMedia support.
-  yep: "/path/to/media.match.js", // Load the polyfill for matchMedia
-  complete: function() {
-    (typeof window.matchMedia === "function") && Modernizr.load('/path/to/enquire.js');
-  }
-},
-{
-  load: '/path/to/savvior.js',
-  complete: function() {
-      // Initialise savvior here.
-    }
-  }
-}]);
-</script>
-````
-
 #### Using a plain script tag
 
 Just add these before your `</body>`.
@@ -108,8 +86,8 @@ Just add these before your `</body>`.
 <!--[if IE 9]>
 <script src="/path/to/media-match.js"></script>
 <![endif]-->
-<script src="/path/to/enquire.js"></script>
-<script src="/path/to/savvior.js"></script>
+<script src="/path/to/enquire.min.js"></script>
+<script src="/path/to/savvior.min.js"></script>
 ````
 
 
@@ -167,9 +145,7 @@ See [CHANGELOG](https://github.com/attila/savvior/blob/master/CHANGELOG.md)
 
 If you find an bug or a problem please open an issue.
 
-This project uses Grunt for running the builds and tests. The module uses an UMD
-wrapper to retain compatibility with CommonJS and AMD module formats.
-Tests are run by Jasmine in PhantomJS.
+This project uses Grunt for running the builds and tests. The module uses an UMD wrapper to retain compatibility with CommonJS and AMD module formats. Tests are run via Jasmine in PhantomJS.
 
 ### Install the development environment
 
@@ -181,7 +157,7 @@ To install the development dependencies, make sure you have
 3. Build the project by running `grunt`
 
 Pull requests for new features or bug fixes are most welcome, just make sure it
-conforms the current coding  style of the project.
+conforms the current coding style of the project.
 
 ## Development
 
