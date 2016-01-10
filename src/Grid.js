@@ -240,17 +240,49 @@ Grid.prototype.restore = function(callback, scope) {
   }.bind(this));
 };
 
-Grid.prototype.append = function (elements, callback) {
-  window.requestAnimationFrame(function() {
-    var items = this.restoreFiltered(this.removeColumns());
+/**
+ * Append items to a Grid.
+ *
+ * This triggers the event 'savvior:appendItems' with the following object in
+ * Event.detail:
+ *   - element: the Grid instance element
+ *   - grid: the Grid instance
+ *
+ * @param  {Mixed}   elements  A Node, array of Nodes or a NodeList representing
+ *   the elements to add to the Grid.
+ * @param  {Bool}    clone     Set this to true when the elements need copying,
+ *   not moving. Optional.
+ * @param  {Function} callback Callback function to execute after the
+ *   elements are appended. The callback is called with the Grid instance.
+ *   Optional.
+ * @return {Grid}              Grid instance.
+ */
+Grid.prototype.appendItems = function (elements, clone, callback) {
+  var evt = new CustomEvent('savvior:appendItems', {
+    detail: {
+      element: this.element,
+      grid: this
+    }
+  });
 
-    if (elements instanceof NodeList) {
+  window.requestAnimationFrame(function () {
+    // Reset the container, restoring any previously filtered items.
+    var items = this.restoreFiltered(this.removeColumns());
+    var append = function (el, items) {
+      var newEl = clone ? el.cloneNode(true) : el;
+      items.appendChild(newEl);
+
+      return items;
+    };
+
+    // If new elements is a NodeList or an array of Nodes, append each to items.
+    if (elements instanceof NodeList || elements instanceof Array) {
       each(elements, function (el) {
-        items.appendChild(el);
+        items = append(el, items);
       });
     }
     else {
-      items.appendChild(elements);
+      items = append(elements, items);
     }
 
     this.addColumns(items, {
@@ -258,6 +290,7 @@ Grid.prototype.append = function (elements, callback) {
       filter: this.filter
     });
 
+    window.dispatchEvent(evt);
     isFunction(callback) && callback(this);
   }.bind(this));
 

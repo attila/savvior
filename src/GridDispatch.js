@@ -100,24 +100,44 @@ GridDispatch.prototype.ready = function(selector) {
   return (this.grids[selector]) ? this.grids[selector].ready : false;
 };
 
-GridDispatch.prototype.append = function (selector, elements, callback) {
-  if (!this.grids[selector]) {
-    throw new Error('Grid does not exist.');
+/**
+ * Append elements to a grid
+ *
+ * @param  {String}   gridSelector The selector used to created the grid.
+ * @param  {Mixed}    elements     A string, array of Nodes or a NodeList
+ *   representing the elements to add to the grid.
+ * @param  {Bool}     clone        Set this to true when the elements need
+ *   copying, not moving. Optional.
+ * @param  {Function} callback     Callback function to execute after the
+ *   elements are appended. The callback is called with the Grid instance.
+ *   Optional.
+ * @return {Object}                GridDispatch instance.
+ * @see Grid.prototype.appendItems
+ */
+GridDispatch.prototype.appendItems = function (gridSelector, elements, clone, callback) {
+  // Check if the grid already exists.
+  if (!this.grids[gridSelector]) {
+    throw new TypeError('Grid does not exist.');
+  }
+
+  // If a selector is given, turn them into Element nodes.
+  if (typeof elements === 'string') {
+    elements = document.querySelectorAll(elements);
   }
 
   if (elements instanceof Array) {
     each(elements, function (el) {
       if (!(el instanceof Node)) {
-        throw new Error('Items appended must be Nodes, Arrays of Nodes or NodeLists.');
+        throw new TypeError('Items appended must be Nodes, Arrays of Nodes or NodeLists.');
       }
-    });
+    }, this);
   }
   else if (!(elements instanceof Node) && !(elements instanceof NodeList)) {
-    throw new Error('Items appended must be Nodes, Arrays of Nodes or NodeLists.');
+    throw new TypeError('Items appended must be Nodes, Arrays of Nodes or NodeLists.');
   }
 
-  each(this.grids[selector].grids, function(grid) {
-    grid.append(elements, callback);
+  each(this.grids[gridSelector].grids, function(grid) {
+    grid.appendItems(elements, clone, callback);
   });
 
   return this;

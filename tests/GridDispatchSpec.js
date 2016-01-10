@@ -1,4 +1,4 @@
-/* global jQuery: true, GridDispatch: true, GridHandler: true, jasmine: true, loadFixtures: true, describe: true, beforeEach: true, it: true, expect: true, spyOn:true, spyOnEvent:true */
+/* global jQuery: true, GridDispatch: true, GridHandler: true, jasmine: true, loadFixtures: true, describe: true, beforeEach: true, afterEach: true, it: true, expect: true, spyOn:true, spyOnEvent:true */
 (function(global, $) {
   'use strict';
 
@@ -191,6 +191,101 @@
       it('reports false when no grids are ready', function() {
         // Assert
         expect(savvior.ready()).toBe(false);
+      });
+
+    });
+
+    describe('appendItems', function() {
+
+      afterEach(function () {
+        savvior.destroy();
+      });
+
+      it('throws when grid does not exist', function() {
+        // Arrange
+        savvior.init(this.selector1, this.settings);
+        // Act & assert
+        expect(function () {
+          savvior.appendItems('.nonexistent-selector');
+        }).toThrow(new TypeError('Grid does not exist.'));
+      });
+
+      it('appends single Element Node', function(done) {
+        // Arrange
+        var newItemElement = document.getElementById('new-1');
+        savvior.init(this.selector1, this.settings);
+        // Assert in callback
+        function check (grid) {
+          expect(grid.element.querySelectorAll('#new-1').length).toBe(1);
+          done();
+        }
+        // Act
+        savvior.appendItems(this.selector1, newItemElement, false, check);
+      });
+
+      it('throws when elements is of unexpected type', function() {
+        // Arrange
+        var newItem = { foo: 'bar' };
+        savvior.init(this.selector1, this.settings);
+        // Act & assert
+        expect(function () {
+          savvior.appendItems(this.selector1, newItem);
+        }.bind(this)).toThrow(new TypeError('Items appended must be Nodes, Arrays of Nodes or NodeLists.'));
+      });
+
+      it('throws when array contains unexpected types', function() {
+        // Arrange
+        var newItemsList = [
+          document.getElementById('new-1'),
+          {foo: 'bar'}
+        ];
+        savvior.init(this.selector1, this.settings);
+        // Act & assert
+        expect(function () {
+          savvior.appendItems(this.selector1, newItemsList);
+        }.bind(this)).toThrow(new TypeError('Items appended must be Nodes, Arrays of Nodes or NodeLists.'));
+      });
+
+      it('appends array of Element Nodes', function(done) {
+        // Arrange
+        var newItemElements = [1, 2, 3, 4, 5, 6, 7, 8].map(function (value) {
+          return document.getElementById('new-' + value);
+        });
+        var newItemElementsCount = newItemElements.length;
+        savvior.init(this.selector1, this.settings);
+        // Assert in callback
+        function check (grid) {
+          expect(grid.element.querySelectorAll('.new').length).toBe(newItemElementsCount);
+          done();
+        }
+        // Act
+        savvior.appendItems(this.selector1, newItemElements, false, check);
+      });
+
+      it('appends elements based on a single selector', function(done) {
+        // Arrange
+        var numberOfNewItems = document.querySelectorAll('#newItems > .box.new').length;
+        savvior.init(this.selector1, this.settings);
+        // Assert in callback
+        function check (grid) {
+          expect(grid.element.querySelectorAll('.new').length).toBe(numberOfNewItems);
+          done();
+        }
+        // Act
+        savvior.appendItems(this.selector1, '#newItems > .box.new', false, check);
+      });
+
+      it('clones elements into grid', function(done) {
+        // Arrange
+        var numberOfNewItems = document.querySelectorAll('#newItems > .box.new').length;
+        savvior.init(this.selector1, this.settings);
+        // Assert in callback
+        function check () {
+          expect(document.querySelectorAll('.new').length).toEqual(2 * numberOfNewItems);
+          done();
+        }
+        // Act
+        savvior.appendItems(this.selector1, '#newItems > .box.new', true, check);
       });
 
     });
