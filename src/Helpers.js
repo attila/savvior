@@ -53,3 +53,18 @@ function isEmpty(obj, p) {
   }
   return !0;
 }
+
+/**
+ * Dirt simple extend.
+ *
+ * @param  {Object} target
+ * @param  {Object} source
+ * @return {Object}
+ */
+function extend (source, target) {
+  for (var prop in source) {
+    target[prop] = source[prop];
+  }
+
+  return target;
+}

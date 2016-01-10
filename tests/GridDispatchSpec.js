@@ -195,7 +195,7 @@
 
     });
 
-    describe('appendItems', function() {
+    describe('addItems', function() {
 
       afterEach(function () {
         savvior.destroy();
@@ -206,7 +206,7 @@
         savvior.init(this.selector1, this.settings);
         // Act & assert
         expect(function () {
-          savvior.appendItems('.nonexistent-selector');
+          savvior.addItems('.nonexistent-selector');
         }).toThrow(new TypeError('Grid does not exist.'));
       });
 
@@ -220,7 +220,7 @@
           done();
         }
         // Act
-        savvior.appendItems(this.selector1, newItemElement, false, check);
+        savvior.addItems(this.selector1, newItemElement, false, check);
       });
 
       it('throws when elements is of unexpected type', function() {
@@ -229,8 +229,8 @@
         savvior.init(this.selector1, this.settings);
         // Act & assert
         expect(function () {
-          savvior.appendItems(this.selector1, newItem);
-        }.bind(this)).toThrow(new TypeError('Items appended must be Nodes, Arrays of Nodes or NodeLists.'));
+          savvior.addItems(this.selector1, newItem);
+        }.bind(this)).toThrow(new TypeError('Items added must be Nodes, Arrays of Nodes or NodeLists.'));
       });
 
       it('throws when array contains unexpected types', function() {
@@ -242,8 +242,8 @@
         savvior.init(this.selector1, this.settings);
         // Act & assert
         expect(function () {
-          savvior.appendItems(this.selector1, newItemsList);
-        }.bind(this)).toThrow(new TypeError('Items appended must be Nodes, Arrays of Nodes or NodeLists.'));
+          savvior.addItems(this.selector1, newItemsList);
+        }.bind(this)).toThrow(new TypeError('Items added must be Nodes, Arrays of Nodes or NodeLists.'));
       });
 
       it('appends array of Element Nodes', function(done) {
@@ -259,7 +259,7 @@
           done();
         }
         // Act
-        savvior.appendItems(this.selector1, newItemElements, false, check);
+        savvior.addItems(this.selector1, newItemElements, check);
       });
 
       it('appends elements based on a single selector', function(done) {
@@ -272,11 +272,14 @@
           done();
         }
         // Act
-        savvior.appendItems(this.selector1, '#newItems > .box.new', false, check);
+        savvior.addItems(this.selector1, '#newItems > .box.new', check);
       });
 
-      it('clones elements into grid', function(done) {
+      it('clones elements to the end of grid', function(done) {
         // Arrange
+        var options = {
+          clone: true
+        };
         var numberOfNewItems = document.querySelectorAll('#newItems > .box.new').length;
         savvior.init(this.selector1, this.settings);
         // Assert in callback
@@ -285,7 +288,40 @@
           done();
         }
         // Act
-        savvior.appendItems(this.selector1, '#newItems > .box.new', true, check);
+        savvior.addItems(this.selector1, '#newItems > .box.new', options, check);
+      });
+
+      it('prepends elements based on a single selector', function(done) {
+        // Arrange
+        var options = {
+          method: 'prepend'
+        };
+        var numberOfNewItems = document.querySelectorAll('#newItems > .box.new').length;
+        savvior.init(this.selector1, this.settings);
+        // Assert in callback
+        function check (grid) {
+          expect(grid.element.querySelectorAll('.new').length).toBe(numberOfNewItems);
+          done();
+        }
+        // Act
+        savvior.addItems(this.selector1, '#newItems > .box.new', options, check);
+      });
+
+      it('clones elements to the beginning of grid', function(done) {
+        // Arrange
+        var options = {
+          method: 'prepend',
+          clone: true
+        };
+        var numberOfNewItems = document.querySelectorAll('#newItems > .box.new').length;
+        savvior.init(this.selector1, this.settings);
+        // Assert in callback
+        function check () {
+          expect(document.querySelectorAll('.new').length).toEqual(2 * numberOfNewItems);
+          done();
+        }
+        // Act
+        savvior.addItems(this.selector1, '#newItems > .box.new', options, check);
       });
 
     });

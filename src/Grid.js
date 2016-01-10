@@ -257,32 +257,43 @@ Grid.prototype.restore = function(callback, scope) {
  *   Optional.
  * @return {Grid}              Grid instance.
  */
-Grid.prototype.appendItems = function (elements, clone, callback) {
+Grid.prototype.appendItems = function (elements, options, callback) {
   var evt = new CustomEvent('savvior:appendItems', {
     detail: {
       element: this.element,
       grid: this
     }
   });
+  var prepareElement = function(el) {
+    return options.clone ? el.cloneNode(true) : el;
+  };
+  var methods = {
+    append: function (el, items) {
+      var newEl = prepareElement(el);
+      items.appendChild(newEl);
+
+      return items;
+    },
+    prepend: function (el, items) {
+      var newEl = prepareElement(el);
+      items.insertBefore(newEl, items.firstChild);
+
+      return items;
+    }
+  };
 
   window.requestAnimationFrame(function () {
     // Reset the container, restoring any previously filtered items.
     var items = this.restoreFiltered(this.removeColumns());
-    var append = function (el, items) {
-      var newEl = clone ? el.cloneNode(true) : el;
-      items.appendChild(newEl);
-
-      return items;
-    };
 
     // If new elements is a NodeList or an array of Nodes, append each to items.
     if (elements instanceof NodeList || elements instanceof Array) {
       each(elements, function (el) {
-        items = append(el, items);
+        items = methods[options.method].call(null, el, items);
       });
     }
     else {
-      items = append(elements, items);
+      items = methods[options.method].call(null, elements, items);
     }
 
     this.addColumns(items, {
