@@ -241,9 +241,9 @@ Grid.prototype.restore = function(callback, scope) {
 };
 
 /**
- * Append items to a Grid.
+ * Add items to a Grid.
  *
- * This triggers the event 'savvior:appendItems' with the following object in
+ * This triggers the event 'savvior:addItems' with the following object in
  * Event.detail:
  *   - element: the Grid instance element
  *   - grid: the Grid instance
@@ -257,8 +257,8 @@ Grid.prototype.restore = function(callback, scope) {
  *   Optional.
  * @return {Grid}              Grid instance.
  */
-Grid.prototype.appendItems = function (elements, options, callback) {
-  var evt = new CustomEvent('savvior:appendItems', {
+Grid.prototype.addItems = function (elements, options, callback) {
+  var evt = new CustomEvent('savvior:addItems', {
     detail: {
       element: this.element,
       grid: this
