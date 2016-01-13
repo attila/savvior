@@ -27,6 +27,7 @@
     "isArray": true,
     "isFunction": true,
     "isEmpty": true,
+    "extend": true,
     "Savvior": false
   }
 }

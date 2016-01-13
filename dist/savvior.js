@@ -119,6 +119,21 @@ function isEmpty(obj, p) {
   }
   return !0;
 }
+
+/**
+ * Dirt simple extend.
+ *
+ * @param  {Object} target
+ * @param  {Object} source
+ * @return {Object}
+ */
+function extend (source, target) {
+  for (var prop in source) {
+    target[prop] = source[prop];
+  }
+
+  return target;
+}
 /**
  * Implements the grid element and its internal manipulation features
  *
@@ -359,6 +374,73 @@ Grid.prototype.restore = function(callback, scope) {
     window.dispatchEvent(evt);
     isFunction(callback) && callback.call(scope, scope || this);
   }.bind(this));
+};
+
+/**
+ * Append items to a Grid.
+ *
+ * This triggers the event 'savvior:appendItems' with the following object in
+ * Event.detail:
+ *   - element: the Grid instance element
+ *   - grid: the Grid instance
+ *
+ * @param  {Mixed}   elements  A Node, array of Nodes or a NodeList representing
+ *   the elements to add to the Grid.
+ * @param  {Bool}    clone     Set this to true when the elements need copying,
+ *   not moving. Optional.
+ * @param  {Function} callback Callback function to execute after the
+ *   elements are appended. The callback is called with the Grid instance.
+ *   Optional.
+ * @return {Grid}              Grid instance.
+ */
+Grid.prototype.appendItems = function (elements, options, callback) {
+  var evt = new CustomEvent('savvior:appendItems', {
+    detail: {
+      element: this.element,
+      grid: this
+    }
+  });
+  var prepareElement = function(el) {
+    return options.clone ? el.cloneNode(true) : el;
+  };
+  var methods = {
+    append: function (el, items) {
+      var newEl = prepareElement(el);
+      items.appendChild(newEl);
+
+      return items;
+    },
+    prepend: function (el, items) {
+      var newEl = prepareElement(el);
+      items.insertBefore(newEl, items.firstChild);
+
+      return items;
+    }
+  };
+
+  window.requestAnimationFrame(function () {
+    // Reset the container, restoring any previously filtered items.
+    var items = this.restoreFiltered(this.removeColumns());
+
+    // If new elements is a NodeList or an array of Nodes, append each to items.
+    if (elements instanceof NodeList || elements instanceof Array) {
+      each(elements, function (el) {
+        items = methods[options.method].call(null, el, items);
+      });
+    }
+    else {
+      items = methods[options.method].call(null, elements, items);
+    }
+
+    this.addColumns(items, {
+      columns: this.columns,
+      filter: this.filter
+    });
+
+    window.dispatchEvent(evt);
+    isFunction(callback) && callback(this);
+  }.bind(this));
+
 };
 /* global Grid: true */
 /**
@@ -603,6 +685,68 @@ GridDispatch.prototype.ready = function(selector) {
   }
 
   return (this.grids[selector]) ? this.grids[selector].ready : false;
+};
+
+/**
+ * Append elements to a grid
+ *
+ * @param  {String}   gridSelector The selector used to created the grid.
+ * @param  {Mixed}    elements     A string, array of Nodes or a NodeList
+ *   representing the elements to add to the grid.
+ * @param  {Object}   options      An object of options. Optional.
+ *   - method: can be 'append' or 'prepend' based on whether new items should be
+ *     added to the front of the grid or the end. Default is append.
+ *   - clone: set this to true when elements need copying not moving. Default is
+ *     false
+ * @param  {Function} callback     Callback function to execute after the
+ *   elements are appended. The callback is called with the Grid instance.
+ *   Optional.
+ * @return {Object}                GridDispatch instance.
+ * @see Grid.prototype.appendItems
+ */
+GridDispatch.prototype.addItems = function (gridSelector, elements, options, callback) {
+  var cb;
+  var opts;
+  var defaults = {
+    clone: false,
+    method: 'append'
+  };
+
+  // Check if the grid already exists.
+  if (!this.grids[gridSelector]) {
+    throw new TypeError('Grid does not exist.');
+  }
+
+  // If a selector is given, turn them into Element nodes.
+  if (typeof elements === 'string') {
+    elements = document.querySelectorAll(elements);
+  }
+
+  if (elements instanceof Array) {
+    each(elements, function (el) {
+      if (!(el instanceof Node)) {
+        throw new TypeError('Items added must be Nodes, Arrays of Nodes or NodeLists.');
+      }
+    }, this);
+  }
+  else if (!(elements instanceof Node) && !(elements instanceof NodeList)) {
+    throw new TypeError('Items added must be Nodes, Arrays of Nodes or NodeLists.');
+  }
+
+  if (isFunction(options)) {
+    cb = options;
+    opts = defaults;
+  }
+  else {
+    cb = callback;
+    opts = extend(options, defaults);
+  }
+
+  each(this.grids[gridSelector].grids, function(grid) {
+    grid.appendItems(elements, opts, cb);
+  });
+
+  return this;
 };
 
 return new GridDispatch();

@@ -99,3 +99,67 @@ GridDispatch.prototype.ready = function(selector) {
 
   return (this.grids[selector]) ? this.grids[selector].ready : false;
 };
+
+/**
+ * Add elements to a grid.
+ *
+ * @param  {String}   gridSelector The selector used to created the grid.
+ * @param  {Mixed}    elements     A string, array of Nodes or a NodeList
+ *   representing the elements to add to the grid.
+ * @param  {Object}   options      An object of options. Optional.
+ *   - method: can be 'append' or 'prepend' based on whether new items should be
+ *     added to the front of the grid or the end. Default is append.
+ *   - clone: set this to true when elements need copying not moving. Default is
+ *     false
+ * @param  {Function} callback     Callback function to execute after the
+ *   elements are appended. The callback is called with the Grid instance.
+ *   Optional.
+ *
+ * @return {Object}                GridDispatch instance.
+ *
+ * @see Grid.prototype.addItems
+ */
+GridDispatch.prototype.addItems = function (gridSelector, elements, options, callback) {
+  var cb;
+  var opts;
+  var defaults = {
+    clone: false,
+    method: 'append'
+  };
+
+  // Check if the grid already exists.
+  if (!this.grids[gridSelector]) {
+    throw new TypeError('Grid does not exist.');
+  }
+
+  // If a selector is given, turn them into Element nodes.
+  if (typeof elements === 'string') {
+    elements = document.querySelectorAll(elements);
+  }
+
+  if (elements instanceof Array) {
+    each(elements, function (el) {
+      if (!(el instanceof Node)) {
+        throw new TypeError('Supplied element in array is not instance of Node.');
+      }
+    }, this);
+  }
+  else if (!(elements instanceof Node) && !(elements instanceof NodeList)) {
+    throw new TypeError('Supplied argument is not a Node or a NodeList.');
+  }
+
+  if (isFunction(options)) {
+    cb = options;
+    opts = defaults;
+  }
+  else {
+    cb = callback;
+    opts = extend(options, defaults);
+  }
+
+  each(this.grids[gridSelector].grids, function(grid) {
+    grid.addItems(elements, opts, cb);
+  });
+
+  return this;
+};
