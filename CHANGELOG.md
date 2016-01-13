@@ -1,5 +1,9 @@
 # Changes
 
+## in development
+
+* #3 - Added method to append or prepend elements to a Grid
+
 ## v0.5.0
 
 * #9 - Added option to exclude specific items from Grid

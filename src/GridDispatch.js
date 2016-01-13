@@ -140,12 +140,12 @@ GridDispatch.prototype.addItems = function (gridSelector, elements, options, cal
   if (elements instanceof Array) {
     each(elements, function (el) {
       if (!(el instanceof Node)) {
-        throw new TypeError('Items added must be Nodes, Arrays of Nodes or NodeLists.');
+        throw new TypeError('Supplied element in array is not instance of Node.');
       }
     }, this);
   }
   else if (!(elements instanceof Node) && !(elements instanceof NodeList)) {
-    throw new TypeError('Items added must be Nodes, Arrays of Nodes or NodeLists.');
+    throw new TypeError('Supplied argument is not a Node or a NodeList.');
   }
 
   if (isFunction(options)) {

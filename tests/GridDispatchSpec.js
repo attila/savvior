@@ -230,7 +230,7 @@
         // Act & assert
         expect(function () {
           savvior.addItems(this.selector1, newItem);
-        }.bind(this)).toThrow(new TypeError('Items added must be Nodes, Arrays of Nodes or NodeLists.'));
+        }.bind(this)).toThrow(new TypeError('Supplied argument is not a Node or a NodeList.'));
       });
 
       it('throws when array contains unexpected types', function() {
@@ -243,7 +243,7 @@
         // Act & assert
         expect(function () {
           savvior.addItems(this.selector1, newItemsList);
-        }.bind(this)).toThrow(new TypeError('Items added must be Nodes, Arrays of Nodes or NodeLists.'));
+        }.bind(this)).toThrow(new TypeError('Supplied element in array is not instance of Node.'));
       });
 
       it('appends array of Element Nodes', function(done) {
