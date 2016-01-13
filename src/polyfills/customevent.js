@@ -1,8 +1,9 @@
+/* eslint-disable no-undefined*/
 /**
  * CustomEvent polyfill
  */
 if (typeof window.CustomEvent !== 'function') {
-  (function() {
+  (function () {
     function CustomEvent(event, params) {
       params = params || { bubbles: false, cancelable: false, detail: undefined };
       var evt = document.createEvent('CustomEvent');

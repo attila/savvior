@@ -1,29 +1,29 @@
-/* global jQuery: true, describe: true, it: true, expect: true */
-(function(global, $) {
+/* eslint-disable max-nested-callbacks*/
+(function (global, $) {
   'use strict';
 
-  describe('Helpers', function() {
+  describe('Helpers', function () {
 
-    describe('each', function() {
+    describe('each', function () {
 
-      it('iterates over a collection', function() {
+      it('iterates over a collection', function () {
         // Arrange
         var src = [1, 2, 3];
         var dest = [];
         // Act
-        each(src, function(val) {
+        each(src, function (val) {
           dest.push(val);
         });
         // Assert
         expect(src).toEqual(dest);
       });
 
-      it('allows early exit', function() {
+      it('allows early exit', function () {
         // Arrange
         var src = [1, 2, 3];
         var dest = [];
         // Act
-        each(src, function(val, key) {
+        each(src, function (val, key) {
           if (key === src.length - 1) {
             return false;
           }
@@ -35,9 +35,9 @@
 
     });
 
-    describe('addToDataset', function() {
+    describe('addToDataset', function () {
 
-      it('calls setAttribute if HTMLElement.dataset is unavailable', function() {
+      it('calls setAttribute if HTMLElement.dataset is unavailable', function () {
         // Arrange
         var elem = document.createElement('div');
         // Act

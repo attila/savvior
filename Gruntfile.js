@@ -1,5 +1,4 @@
-/* jshint node: true */
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   'use strict';
 
   var path = require('path');
@@ -9,10 +8,10 @@ module.exports = function(grunt) {
 
     meta: {
       banner: {
-        dist: '/*!\n'+
-               ' * <%= pkg.name %> v<%= pkg.version %> - <%= pkg.description %>\n'+
-               ' * <%= pkg.homepage %>\n'+
-               ' * <%= pkg.repository.url %>\n'+
+        dist: '/*!\n' +
+               ' * <%= pkg.name %> v<%= pkg.version %> - <%= pkg.description %>\n' +
+               ' * <%= pkg.homepage %>\n' +
+               ' * <%= pkg.repository.url %>\n' +
                ' */\n'
       },
       outputDir: 'dist',
@@ -46,15 +45,13 @@ module.exports = function(grunt) {
       }
     },
 
-    jshint: {
+    eslint: {
       options: {
-        jshintrc : '.jshintrc'
+        ignorePath: './.eslintignore',
+        quiet: true
       },
-      files: [
-        './*.js',
-        'src/**/*.js',
-        '!src/polyfills/*',
-        'tests/**/*Spec.js'
+      src: [
+        '**/*.js'
       ]
     },
 
@@ -98,7 +95,7 @@ module.exports = function(grunt) {
           'default': ['enquire'],
           cjs: ['enquire.js']
         }
-      },
+      }
     },
 
     bytesize: {
@@ -116,7 +113,7 @@ module.exports = function(grunt) {
       dist: [
         '.grunt',
         'coverage',
-        'tests/SpecRunner.html',
+        'tests/SpecRunner.html'
       ]
     }
 
@@ -126,9 +123,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-umd');
 
   grunt.registerTask('pre-build', [
@@ -143,7 +140,7 @@ module.exports = function(grunt) {
     'bytesize'
   ]);
   grunt.registerTask('test', [
-    'jshint',
+    'eslint',
     'jasmine'
   ]);
 

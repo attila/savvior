@@ -1,5 +1,6 @@
-/* global jQuery: true, GridHandler: true, jasmine: true, loadFixtures: true, describe: true, beforeEach: true, it: true, expect: true, spyOn: true */
-(function(global, $) {
+/* eslint-disable max-nested-callbacks*/
+/* eslint-disable guard-for-in*/
+(function (global, $) {
   'use strict';
 
   var handler;
@@ -9,35 +10,35 @@
 
   jasmine.getFixtures().fixturesPath = './fixtures';
 
-  describe('GridHandler', function() {
+  describe('GridHandler', function () {
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       this.selector = selector;
       this.selectorMultiple = selectorMultiple;
       this.settings = { 'screen': { columns: columns } };
 
-      spyOn(enquire, 'register').and.callFake(function(mq, handler) {
+      spyOn(enquire, 'register').and.callFake(function (mq, handler) {
         return {
           mq: mq,
           handler: handler
         };
       });
 
-      spyOn(enquire, 'unregister').and.callFake(function(handler) {
+      spyOn(enquire, 'unregister').and.callFake(function (handler) {
         return handler;
       });
 
       handler = new GridHandler(this.selector, this.settings);
 
-      $(document).ready(function() {
+      $(document).ready(function () {
         loadFixtures('grids.html');
         done();
       });
     });
 
-    describe('Constructor', function() {
+    describe('Constructor', function () {
 
-      it('constructs object with required properties', function() {
+      it('constructs object with required properties', function () {
         // Assert
         expect(handler.selector).toEqual(this.selector);
         expect(handler.options).toEqual(this.settings);
@@ -48,9 +49,9 @@
 
     });
 
-    describe('register, constructHandler', function() {
+    describe('register, constructHandler', function () {
 
-      it('generates Grid instances', function() {
+      it('generates Grid instances', function () {
         // Arrange
         var count = document.querySelectorAll(this.selectorMultiple).length;
         handler = new GridHandler(this.selectorMultiple, this.settings);
@@ -60,7 +61,7 @@
         expect(handler.grids.length).toEqual(count);
       });
 
-      it('constructs enquire handlers', function() {
+      it('constructs enquire handlers', function () {
         // Act
         handler.register();
         // Assert
@@ -77,14 +78,14 @@
         expect(handler.queryHandlers.length).toEqual(Object.keys(this.settings).length);
       });
 
-      it('registers enquire handlers', function() {
+      it('registers enquire handlers', function () {
         // Act
         handler.register();
         // Assert
         expect(enquire.register.calls.count()).toEqual(handler.queryHandlers.length);
       });
 
-      it('returns instance', function() {
+      it('returns instance', function () {
         // Act & Assert
         expect(handler.register()).toEqual(jasmine.objectContaining({
           ready: true
@@ -93,12 +94,12 @@
 
     });
 
-    describe('gridSetup', function() {
+    describe('gridSetup', function () {
 
-      it('sets up grid', function() {
+      it('sets up grid', function () {
         // Arrange
         handler.register();
-        spyOn(handler.grids[0], 'setup').and.callFake(function(columns) {
+        spyOn(handler.grids[0], 'setup').and.callFake(function (columns) {
           return columns;
         });
         // Act
@@ -109,12 +110,12 @@
 
     });
 
-    describe('gridMatch', function() {
+    describe('gridMatch', function () {
 
-      it('calls Grid.prototype.redraw on match', function() {
+      it('calls Grid.prototype.redraw on match', function () {
         // Arrange
         handler.register();
-        spyOn(handler.grids[0], 'redraw').and.callFake(function(columns) {
+        spyOn(handler.grids[0], 'redraw').and.callFake(function (columns) {
           return columns;
         });
         // Act
@@ -126,15 +127,15 @@
 
     });
 
-    describe('unregister', function() {
+    describe('unregister', function () {
 
-      it('unregisters handlers', function(done) {
+      it('unregisters handlers', function (done) {
         // Arrange
         handler.register();
-        handler.grids[0].setup({columns: 2}, function() {
+        handler.grids[0].setup({ columns: 2 }, function () {
           var length = handler.queryHandlers.length;
           // Act & Assert
-          handler.unregister(function() {
+          handler.unregister(function () {
             expect(handler.queryHandlers.length).toBe(0);
             expect(handler.ready).toBe(false);
             expect(enquire.unregister.calls.count()).toEqual(length);

@@ -1,21 +1,9 @@
-/* global Grid: true */
 /**
- * Implements the handling of a grid element.
- *
- * This performs operations via registered enquire handlers
- *
- * @param {Object} GridHandler
- * @param {String} GridHandler.selector Stores the selector of the Grid
- *   instance element
- * @param {Object} GridHandler.options  Defines the number of columns a grid
- *   should have for each media query registered
- * @param {Array} GridHandler.queryHandlers  Stores all registered enquire
- *   handlers so they are unregisterable
- * @param {Object} GridHandler.grid  The Grid object reference
- * @param {Boolean} GridHandler.ready  Pointer to maintain the Grid status
- * @constructor
+ * [GridHandler description]
+ * @param {[type]} selector [description]
+ * @param {[type]} options  [description]
  */
-var GridHandler = function(selector, options) {
+var GridHandler = function (selector, options) {
   this.selector = selector;
   this.options = options;
   this.queryHandlers = [];
@@ -25,17 +13,21 @@ var GridHandler = function(selector, options) {
 
 /**
  * Register the Grid object instances and their enquire handlers.
+ *
+ * @return {[type]} [description]
  */
-GridHandler.prototype.register = function() {
-  each(document.querySelectorAll(this.selector), function(el) {
+GridHandler.prototype.register = function () {
+  each(document.querySelectorAll(this.selector), function (el) {
     this.grids.push(new Grid(el, this.options));
   }, this);
 
   for (var mq in this.options) {
-    this.queryHandlers.push(this.constructHandler(mq, this.options[mq]));
+    if ({}.hasOwnProperty.call(this.options, mq)) {
+      this.queryHandlers.push(this.constructHandler(mq, this.options[mq]));
+    }
   }
 
-  each(this.queryHandlers, function(h) {
+  each(this.queryHandlers, function (h) {
     enquire.register(h.mq, h.handler);
   });
 
@@ -51,21 +43,21 @@ GridHandler.prototype.register = function() {
  * @return {Object}    The handler object containing this.handler to
  *   register with enquire
  */
-GridHandler.prototype.constructHandler = function(mq) {
+GridHandler.prototype.constructHandler = function (mq) {
   return {
     mq: mq,
     handler: {
       deferSetup: true,
 
-      setup: function() {
+      setup: function () {
         this.gridSetup(mq);
       }.bind(this),
 
-      match: function() {
+      match: function () {
         this.gridMatch(mq);
       }.bind(this),
 
-      destroy: function() {
+      destroy: function () {
         return;
       }
     }
@@ -77,11 +69,11 @@ GridHandler.prototype.constructHandler = function(mq) {
  *
  * @param  {[type]} mq The current query
  */
-GridHandler.prototype.gridSetup = function(mq) {
+GridHandler.prototype.gridSetup = function (mq) {
   var evt;
 
-  each(this.grids, function(grid) {
-    grid.setup(this.options[mq], function() {
+  each(this.grids, function (grid) {
+    grid.setup(this.options[mq], function () {
       evt = new CustomEvent('savvior:setup', {
         detail: {
           element: grid.element,
@@ -99,10 +91,10 @@ GridHandler.prototype.gridSetup = function(mq) {
  *
  * @param  {[type]} mq The current query
  */
-GridHandler.prototype.gridMatch = function(mq) {
+GridHandler.prototype.gridMatch = function (mq) {
   var evt;
 
-  each(this.grids, function(grid) {
+  each(this.grids, function (grid) {
     evt = new CustomEvent('savvior:match', {
       detail: {
         element: grid.element,
@@ -112,7 +104,7 @@ GridHandler.prototype.gridMatch = function(mq) {
       }
     });
 
-    grid.redraw(this.options[mq], function() {
+    grid.redraw(this.options[mq], function () {
       window.dispatchEvent(evt);
     });
   }, this);
@@ -122,20 +114,25 @@ GridHandler.prototype.gridMatch = function(mq) {
  * Restore the grid to its original state.
  *
  * This unregisters any previously registered enquire handlers and clears up
- * the object instance
+ * the object instance.
+ *
+ * @param  {Function} callback [description]
+ * @param  {[type]}   scope    [description]
  */
-GridHandler.prototype.unregister = function(callback, scope) {
-  each(this.queryHandlers, function(h) {
+GridHandler.prototype.unregister = function (callback, scope) {
+  each(this.queryHandlers, function (h) {
     enquire.unregister(h.mq);
   });
 
-  each(this.grids, function(grid) {
-    grid.restore(function() {
+  each(this.grids, function (grid) {
+    grid.restore(function () {
       // Cleanup
       this.queryHandlers = [];
       this.ready = false;
 
-      isFunction(callback) && callback.call(this, scope || this);
+      if (isFunction(callback)) {
+        callback.call(this, scope || this);
+      }
     }, this);
   }, this);
 

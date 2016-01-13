@@ -1,13 +1,9 @@
 /**
- * Implements the grid element and its internal manipulation features
+ * Implements the grid element and its internal manipulation features.
  *
- * @param {Object} Grid
- * @param {String} Grid.columns  Stores the current number of columns
- * @param {Object} Grid.element  Stores the DOM object of the grid element
- * @param {Boolean} Grid.status  Pointer to maintain the Grid status
- * @constructor
+ * @param {[type]} element [description]
  */
-var Grid = function(element) {
+var Grid = function (element) {
   this.columns = null;
   this.element = element;
   this.filtered = document.createDocumentFragment();
@@ -15,13 +11,15 @@ var Grid = function(element) {
 };
 
 /**
- * Set up the grid element and add columns
+ * Set up the grid element and add columns.
  *
- * @param  {Object}   options   Object containing configuration options.
- *                              Currently `columns` and `filter` are supported.
- * @param  {Function} callback  Optional. Callback function to call when done
+ * @param  {Object}   options  Object containing configuration options. Valid
+ *   options are `columns` and `filter`.
+ * @param  {Function} callback Optional. Callback function to call when done.
+ *
+ * @return {Bool} False when grid is already set.
  */
-Grid.prototype.setup = function(options, callback) {
+Grid.prototype.setup = function (options, callback) {
   // Run this only once on a grid.
   if (this.status) {
     return false;
@@ -34,26 +32,32 @@ Grid.prototype.setup = function(options, callback) {
   range.selectNodeContents(this.element);
   items.appendChild(range.extractContents());
 
-  window.requestAnimationFrame(function() {
+  window.requestAnimationFrame(function () {
     addToDataset(items, 'columns', 0);
 
     this.addColumns(items, options);
     this.status = true;
 
-    isFunction(callback) && callback.call(this);
+    if (isFunction(callback)) {
+      callback.call(this);
+    }
   }.bind(this));
 };
 
 /**
  * Create columns with the configured classes and add a list of items to them.
+ *
+ * @param {[type]} items   [description]
+ * @param {[type]} options [description]
  */
-Grid.prototype.addColumns = function(items, options) {
-  var columnClasses = ['column', 'size-1of'+ options.columns];
+Grid.prototype.addColumns = function (items, options) {
+  var columnClasses = ['column', 'size-1of' + options.columns];
   var columnsFragment = document.createDocumentFragment();
   var columnsItems = [];
   var i = options.columns;
   var childSelector;
-  var column, rowsFragment;
+  var column;
+  var rowsFragment;
 
   // Filter out items when a filter is given.
   this.filterItems(items, options.filter);
@@ -63,13 +67,13 @@ Grid.prototype.addColumns = function(items, options) {
     columnsItems.push(items.querySelectorAll(childSelector));
   }
 
-  each(columnsItems, function(rows) {
+  each(columnsItems, function (rows) {
     column = document.createElement('div');
     rowsFragment = document.createDocumentFragment();
 
     column.className = columnClasses.join(' ');
 
-    each(rows, function(row) {
+    each(rows, function (row) {
       rowsFragment.appendChild(row);
     });
     column.appendChild(rowsFragment);
@@ -88,16 +92,18 @@ Grid.prototype.addColumns = function(items, options) {
  * @param  {[type]} filter [description]
  * @return {[type]}        [description]
  */
-Grid.prototype.filterItems = function(items, filter) {
+Grid.prototype.filterItems = function (items, filter) {
   if (!filter) {
     return items;
   }
 
-  var index, filtered, nodeList;
+  var index;
+  var filtered;
+  var nodeList;
 
   nodeList = Array.prototype.slice.call(items.children);
   filtered = items.querySelectorAll('[data-columns] > ' + filter);
-  each(filtered, function(item) {
+  each(filtered, function (item) {
     index = (nodeList.indexOf(item));
     this.filtered.appendChild(item);
     addToDataset(item, 'position', index);
@@ -109,10 +115,10 @@ Grid.prototype.filterItems = function(items, filter) {
 /**
  * Remove all the columns from a grid and prepare it for populating again.
  *
- * @param  Object grid The grid element object
- * @return Object      A list of items sorted by the ordering of columns
+ * @param  {Object} grid The grid element object
+ * @return {Object}      A list of items sorted by the ordering of columns
  */
-Grid.prototype.removeColumns = function() {
+Grid.prototype.removeColumns = function () {
   var range = document.createRange();
   var container = document.createElement('div');
   var sortedRows = [];
@@ -134,10 +140,10 @@ Grid.prototype.removeColumns = function() {
 
   addToDataset(container, 'columns', 0);
 
-  sortedRows.filter(function(child) {
+  sortedRows.filter(function (child) {
     return !!child;
   })
-  .forEach(function(child) {
+  .forEach(function (child) {
     container.appendChild(child);
   });
 
@@ -148,12 +154,11 @@ Grid.prototype.removeColumns = function() {
  * Remove all the columns from the grid, and add them again if the number of
  * columns have changed.
  *
- * @param  {[type]}   newColumns The number of columns to transform the Grid
+ * @param  {[type]}   newOptions New options to use with the Grid.
  *   element to.
  * @param  {Function} callback   Optional. Callback function to call when done
- * @return {[type]}              [description]
  */
-Grid.prototype.redraw = function(newOptions, callback) {
+Grid.prototype.redraw = function (newOptions, callback) {
   var evt = new CustomEvent('savvior:redraw', {
     detail: {
       element: this.element,
@@ -164,14 +169,17 @@ Grid.prototype.redraw = function(newOptions, callback) {
   });
   var items;
 
-  window.requestAnimationFrame(function() {
+  window.requestAnimationFrame(function () {
     if (this.columns !== newOptions.columns) {
       items = this.restoreFiltered(this.removeColumns());
       this.addColumns(items, newOptions);
     }
 
     window.dispatchEvent(evt);
-    isFunction(callback) && callback(this);
+
+    if (isFunction(callback)) {
+      callback(this);
+    }
   }.bind(this));
 };
 
@@ -181,7 +189,7 @@ Grid.prototype.redraw = function(newOptions, callback) {
  * @param  {[type]} container [description]
  * @return {[type]}           [description]
  */
-Grid.prototype.restoreFiltered = function(container) {
+Grid.prototype.restoreFiltered = function (container) {
   if (this.filtered.childNodes.length === 0) {
     return container;
   }
@@ -189,7 +197,7 @@ Grid.prototype.restoreFiltered = function(container) {
   var allItems = container;
   var pos;
 
-  each(this.filtered.querySelectorAll('[data-position]'), function(item) {
+  each(this.filtered.querySelectorAll('[data-position]'), function (item) {
     pos = Number(item.getAttribute('data-position'));
     item.removeAttribute('data-position');
     // Insert the element back to its original position. ReferenceNode is now
@@ -201,13 +209,18 @@ Grid.prototype.restoreFiltered = function(container) {
 };
 
 /**
- * Restore the Grid element to its original state
+ * Restore the Grid element to its original state.
  *
- * @param  {Function} callback  Optional. Callback function to call when done
+ * @param  {Function} callback Optional. Callback function to call when done
+ * @param  {Object}   scope    Value of `this` in the callback.
+ *
+ * @return {Bool} False when grid is not yet set up.
  */
-Grid.prototype.restore = function(callback, scope) {
+Grid.prototype.restore = function (callback, scope) {
   if (!this.status) {
-    isFunction(callback) && callback(false);
+    if (isFunction(callback)) {
+      callback(false);
+    }
     return false;
   }
 
@@ -221,14 +234,14 @@ Grid.prototype.restore = function(callback, scope) {
     }
   });
 
-  window.requestAnimationFrame(function() {
+  window.requestAnimationFrame(function () {
     container = this.restoreFiltered(this.removeColumns());
 
-    each(container.childNodes, function(item) {
+    each(container.childNodes, function (item) {
       children.push(item);
     });
 
-    children.forEach(function(child) {
+    children.forEach(function (child) {
       fragment.appendChild(child);
     });
 
@@ -236,7 +249,9 @@ Grid.prototype.restore = function(callback, scope) {
     this.element.removeAttribute('data-columns');
 
     window.dispatchEvent(evt);
-    isFunction(callback) && callback.call(scope, scope || this);
+    if (isFunction(callback)) {
+      callback.call(scope, scope || this);
+    }
   }.bind(this));
 };
 
@@ -250,12 +265,11 @@ Grid.prototype.restore = function(callback, scope) {
  *
  * @param  {Mixed}   elements  A Node, array of Nodes or a NodeList representing
  *   the elements to add to the Grid.
- * @param  {Bool}    clone     Set this to true when the elements need copying,
+ * @param  {Bool}    options   Set this to true when the elements need copying,
  *   not moving. Optional.
  * @param  {Function} callback Callback function to execute after the
  *   elements are appended. The callback is called with the Grid instance.
  *   Optional.
- * @return {Grid}              Grid instance.
  */
 Grid.prototype.addItems = function (elements, options, callback) {
   var evt = new CustomEvent('savvior:addItems', {
@@ -264,7 +278,7 @@ Grid.prototype.addItems = function (elements, options, callback) {
       grid: this
     }
   });
-  var prepareElement = function(el) {
+  var prepareElement = function (el) {
     return options.clone ? el.cloneNode(true) : el;
   };
   var methods = {
@@ -302,7 +316,9 @@ Grid.prototype.addItems = function (elements, options, callback) {
     });
 
     window.dispatchEvent(evt);
-    isFunction(callback) && callback(this);
+    if (isFunction(callback)) {
+      callback(this);
+    }
   }.bind(this));
 
 };
