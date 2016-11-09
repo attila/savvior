@@ -650,7 +650,7 @@ GridDispatch.prototype.init = function(selector, options) {
  * @param  {Function} callback  Optional. Callback function to call when done
  */
 GridDispatch.prototype.destroy = function(selectors, callback) {
-  var evt = new CustomEvent('savvior:destroy');
+  var evt = new CustomEvent('savvior:destroy', {detail: {selectors: selectors}});
   var grids = (selectors === undefined || isEmpty(selectors)) ? Object.keys(this.grids) : selectors;
   var total = grids.length;
   var counter = 0;
