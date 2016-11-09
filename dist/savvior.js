@@ -10,7 +10,7 @@
     // like Node.
     module.exports = factory(require("enquire.js"));
   } else {
-    root['savvior'] = factory(enquire);
+    root['savvior'] = factory(root["enquire"]);
   }
 }(this, function (enquire) {
 
@@ -377,9 +377,9 @@ Grid.prototype.restore = function(callback, scope) {
 };
 
 /**
- * Append items to a Grid.
+ * Add items to a Grid.
  *
- * This triggers the event 'savvior:appendItems' with the following object in
+ * This triggers the event 'savvior:addItems' with the following object in
  * Event.detail:
  *   - element: the Grid instance element
  *   - grid: the Grid instance
@@ -393,8 +393,8 @@ Grid.prototype.restore = function(callback, scope) {
  *   Optional.
  * @return {Grid}              Grid instance.
  */
-Grid.prototype.appendItems = function (elements, options, callback) {
-  var evt = new CustomEvent('savvior:appendItems', {
+Grid.prototype.addItems = function (elements, options, callback) {
+  var evt = new CustomEvent('savvior:addItems', {
     detail: {
       element: this.element,
       grid: this
@@ -650,7 +650,7 @@ GridDispatch.prototype.init = function(selector, options) {
  * @param  {Function} callback  Optional. Callback function to call when done
  */
 GridDispatch.prototype.destroy = function(selectors, callback) {
-  var evt = new CustomEvent('savvior:destroy', {detail: {selectors: selectors}});
+  var evt = new CustomEvent('savvior:destroy');
   var grids = (selectors === undefined || isEmpty(selectors)) ? Object.keys(this.grids) : selectors;
   var total = grids.length;
   var counter = 0;
@@ -688,7 +688,7 @@ GridDispatch.prototype.ready = function(selector) {
 };
 
 /**
- * Append elements to a grid
+ * Add elements to a grid.
  *
  * @param  {String}   gridSelector The selector used to created the grid.
  * @param  {Mixed}    elements     A string, array of Nodes or a NodeList
@@ -701,8 +701,10 @@ GridDispatch.prototype.ready = function(selector) {
  * @param  {Function} callback     Callback function to execute after the
  *   elements are appended. The callback is called with the Grid instance.
  *   Optional.
+ *
  * @return {Object}                GridDispatch instance.
- * @see Grid.prototype.appendItems
+ *
+ * @see Grid.prototype.addItems
  */
 GridDispatch.prototype.addItems = function (gridSelector, elements, options, callback) {
   var cb;
@@ -725,12 +727,12 @@ GridDispatch.prototype.addItems = function (gridSelector, elements, options, cal
   if (elements instanceof Array) {
     each(elements, function (el) {
       if (!(el instanceof Node)) {
-        throw new TypeError('Items added must be Nodes, Arrays of Nodes or NodeLists.');
+        throw new TypeError('Supplied element in array is not instance of Node.');
       }
     }, this);
   }
   else if (!(elements instanceof Node) && !(elements instanceof NodeList)) {
-    throw new TypeError('Items added must be Nodes, Arrays of Nodes or NodeLists.');
+    throw new TypeError('Supplied argument is not a Node or a NodeList.');
   }
 
   if (isFunction(options)) {
@@ -743,7 +745,7 @@ GridDispatch.prototype.addItems = function (gridSelector, elements, options, cal
   }
 
   each(this.grids[gridSelector].grids, function(grid) {
-    grid.appendItems(elements, opts, cb);
+    grid.addItems(elements, opts, cb);
   });
 
   return this;
