@@ -1,8 +1,9 @@
 # Changes
 
-## in development
+## v0.5.1
 
 * #3 - Added method to append or prepend elements to a Grid
+* #30 - Added selectors to detail object of destroy event
 
 ## v0.5.0
 
