@@ -173,6 +173,22 @@
         });
       });
 
+      it('adds selectors to destroy event data', function(done) {
+        // Arrange
+        savvior.init(this.selector1, this.settings);
+        var selectors = [this.selector1];
+        var listener = function (e) {
+          // Assert
+          expect(e.currentTarget).toEqual(global);
+          expect(e.detail.selectors).toEqual(selectors);
+          // Cleanup
+          global.removeEventListener('savvior:destroy', listener);
+          done();
+        };
+        global.addEventListener('savvior:destroy', listener);
+        // Act
+        savvior.destroy(selectors);
+      });
     });
 
     describe('ready', function() {
