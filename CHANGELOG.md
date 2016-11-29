@@ -1,5 +1,9 @@
 # Changes
 
+## v0.5.2
+
+* Fixed build
+
 ## v0.5.1
 
 * #3 - Added method to append or prepend elements to a Grid
