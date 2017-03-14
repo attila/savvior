@@ -43,6 +43,7 @@
         expect(grid.columns).toBe(null);
         expect(grid.element).toEqual(element);
         expect(grid.status).toBe(false);
+        expect(grid.columnClasses).toBe(null);
       });
 
     });
@@ -72,14 +73,6 @@
 
         expect(newChildren).toEqual(columns);
         expect(newChildren).not.toEqual(children);
-      });
-
-      it('adds class names to grid columns', function() {
-        // Arrange
-        var classes = $(element).children().first().attr('class');
-        // Assert
-        expect(classes).toContain('column ');
-        expect(classes).toContain(' size-1of' + columns);
       });
 
       it('dispatches event on redraw', function(done) {
@@ -125,6 +118,77 @@
         grid.restore(function() {
           expect(spyEvent).toHaveBeenTriggered();
           done();
+        });
+      });
+
+    });
+
+    describe('column classes', function() {
+
+      var columns = 3;
+
+      function getClasses(element) {
+        return $(element).children().first().attr('class').split(' ');
+      }
+
+      beforeEach(function() {
+        this.options = {
+          columns: columns
+        };
+
+        grid = new Grid(element);
+      });
+
+      it('adds default class names', function(done) {
+        // Act & Assert
+        grid.setup(this.options, function() {
+          var classes = getClasses(element);
+
+          expect(classes).toEqual(jasmine.arrayContaining(['column', 'size-1of' + columns]));
+          done();
+        });
+      });
+
+      it('adds class names specified as an array', function(done) {
+        // Arrange
+        var options = this.options;
+        options.columnClasses = ['some', 'custom', 'classes'];
+        // Act & Assert
+        grid.setup(options, function() {
+          var classes = getClasses(element);
+
+          expect(classes).toEqual(jasmine.arrayContaining(options.columnClasses));
+          done();
+        });
+      });
+
+      it('adds class names specified as a string', function(done) {
+        // Arrange
+        var options = this.options;
+        options.columnClasses = 'some custom classes';
+        // Act & Assert
+        grid.setup(options, function() {
+          var classes = getClasses(element);
+
+          expect(classes).toEqual(jasmine.arrayContaining(options.columnClasses.split(' ')));
+          done();
+        });
+      });
+
+      it('adds new column classes when redrawing', function(done) {
+        // Arrange
+        var options = this.options;
+        options.columnClasses = 'initial classes';
+
+        grid.setup(options, function() {
+          // Act & Assert
+          options.columnClasses = 'new ones';
+          grid.redraw(options, function() {
+            var classes = getClasses(element);
+
+            expect(classes).toEqual(jasmine.arrayContaining(options.columnClasses.split(' ')));
+            done();
+          });
         });
       });
 
