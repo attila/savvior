@@ -169,7 +169,7 @@ Grid.prototype.redraw = function(newOptions, callback) {
   var items;
 
   window.requestAnimationFrame(function() {
-    if (this.columns !== newOptions.columns || this.columnClasses !== newOptions.columnClasses) {
+    if (this.columns !== newOptions.columns) {
       items = this.restoreFiltered(this.removeColumns());
       this.addColumns(items, newOptions);
     }

@@ -175,23 +175,6 @@
         });
       });
 
-      it('adds new column classes when redrawing', function(done) {
-        // Arrange
-        var options = this.options;
-        options.columnClasses = 'initial classes';
-
-        grid.setup(options, function() {
-          // Act & Assert
-          options.columnClasses = 'new ones';
-          grid.redraw(options, function() {
-            var classes = getClasses(element);
-
-            expect(classes).toEqual(jasmine.arrayContaining(options.columnClasses.split(' ')));
-            done();
-          });
-        });
-      });
-
     });
 
     describe('with filtering', function() {
