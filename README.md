@@ -43,6 +43,8 @@ Add some CSS to support the layout when multiple columns are created, e.g
 .size-1of4 { width: 25%; }
 ````
 
+These CSS classes will be added to your columns by default. If you need another classes, you can specify them in `options` as described in next sections.
+
 ### Load the JavaScript
 
 #### CommonJS
@@ -116,6 +118,22 @@ mediaMatch breakpoint, examples:
       filter: '#excludeme, .filter-these-as-well'
     },
     "screen and (min-width: 40em)": { columns: 4 },
+  });
+````
+
+Also, you can specify which CSS classes will be applied to columns on each media query, examples:
+
+````javascript
+  savvior.init("#myGrid", {
+    "screen and (max-width: 20em)": {
+      columns: 2,
+      columnClasses: 'mobile-columns mobile-columns-one-half' // as a string
+    },
+    "screen and (min-width: 20em) and (max-width: 40em)": {
+      columns: 3,
+      columnClasses: ['tablet-columns', 'tablet-columns-1-3'] // as an array
+    },
+    "screen and (min-width: 40em)": { columns: 4 }, // default classes "column size-1of4"
   });
 ````
 

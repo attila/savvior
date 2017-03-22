@@ -12,6 +12,7 @@ var Grid = function(element) {
   this.element = element;
   this.filtered = document.createDocumentFragment();
   this.status = false;
+  this.columnClasses = null;
 };
 
 /**
@@ -48,7 +49,7 @@ Grid.prototype.setup = function(options, callback) {
  * Create columns with the configured classes and add a list of items to them.
  */
 Grid.prototype.addColumns = function(items, options) {
-  var columnClasses = ['column', 'size-1of'+ options.columns];
+  var columnClasses = options.columnClasses || ['column', 'size-1of'+ options.columns];
   var columnsFragment = document.createDocumentFragment();
   var columnsItems = [];
   var i = options.columns;
@@ -57,6 +58,8 @@ Grid.prototype.addColumns = function(items, options) {
 
   // Filter out items when a filter is given.
   this.filterItems(items, options.filter);
+
+  columnClasses = Array.isArray(columnClasses) ? columnClasses.join(' ') : columnClasses;
 
   while (i-- !== 0) {
     childSelector = '[data-columns] > *:nth-child(' + options.columns + 'n-' + i + ')';
@@ -67,7 +70,7 @@ Grid.prototype.addColumns = function(items, options) {
     column = document.createElement('div');
     rowsFragment = document.createDocumentFragment();
 
-    column.className = columnClasses.join(' ');
+    column.className = columnClasses;
 
     each(rows, function(row) {
       rowsFragment.appendChild(row);
@@ -79,6 +82,7 @@ Grid.prototype.addColumns = function(items, options) {
   this.element.appendChild(columnsFragment);
   addToDataset(this.element, 'columns', options.columns);
   this.columns = options.columns;
+  this.columnClasses = options.columnClasses;
 };
 
 /**
@@ -298,6 +302,7 @@ Grid.prototype.addItems = function (elements, options, callback) {
 
     this.addColumns(items, {
       columns: this.columns,
+      columnClasses: this.columnClasses,
       filter: this.filter
     });
 
