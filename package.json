@@ -40,5 +40,9 @@
     "matchMedia",
     "masonry",
     "salavttore"
+  ],
+  "contributors": [
+    "Pirkka Esko",
+    "revyh"
   ]
 }

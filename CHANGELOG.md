@@ -1,15 +1,28 @@
 # Changes
 
+## v0.6.0
+
+_Released 6 Apr 2017_
+
+* #31 - Added support for custom CSS classes for columns
+* Added contributors section to package.json
+
 ## v0.5.2
+
+_Released 29 Nov 2016_
 
 * Fixed build
 
 ## v0.5.1
 
+_Released 29 Nov 2016_
+
 * #3 - Added method to append or prepend elements to a Grid
 * #30 - Added selectors to detail object of destroy event
 
 ## v0.5.0
+
+_Released 23 Apr 2015_
 
 * #9 - Added option to exclude specific items from Grid
 * #8 - Support for multiple grids with a single selector
@@ -19,9 +32,13 @@
 
 ### v0.4.2
 
+_Released 28 Feb 2015_
+
 Cleanup
 
 ### v0.4.1
+
+_Released 28 Feb 2015_
 
 Bug fix in tests
 
