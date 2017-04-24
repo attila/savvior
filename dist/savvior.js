@@ -199,7 +199,7 @@ Grid.prototype.addColumns = function(items, options) {
 
   while (i-- !== 0) {
     childSelector = '[data-columns] > *:nth-child(' + options.columns + 'n-' + i + ')';
-    columnsItems.push(items.querySelectorAll(childSelector));
+    columnsItems.unshift(items.querySelectorAll(childSelector));
   }
 
   each(columnsItems, function(rows) {
