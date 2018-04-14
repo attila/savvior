@@ -1,7 +1,7 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module unless amdModuleId is set
-    define('savvior', ["enquire"], function (a0) {
+    define('savvior', ["enquire.js"], function (a0) {
       return (root['new GridDispatch()'] = factory(a0));
     });
   } else if (typeof exports === 'object') {
