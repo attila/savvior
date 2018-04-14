@@ -1,5 +1,11 @@
 # Changes
 
+## v0.6.1
+
+_Released 14 Apr 2018_
+
+* #36 - Fix AMD loader with enquire.js
+
 ## v0.6.0
 
 _Released 6 Apr 2017_

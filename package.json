@@ -3,7 +3,7 @@
   "description": "A Javascript multicolumn layout tool alternative to Masonry or Salvattore.",
   "author": "Attila Beregszaszi <attila@frontseed.com> (http://attilab.com)",
   "homepage": "http://savvior.org",
-  "version": "0.6.1",
+  "version": "0.6.0",
   "license": "MIT",
   "main": "dist/savvior.js",
   "dependencies": {
@@ -43,6 +43,7 @@
   ],
   "contributors": [
     "Pirkka Esko",
-    "revyh"
+    "revyh",
+    "mbardelmeijer"
   ]
 }
