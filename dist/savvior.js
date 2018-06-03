@@ -190,6 +190,7 @@ Grid.prototype.addColumns = function(items, options) {
   var columnsItems = [];
   var i = options.columns;
   var childSelector;
+  var columnChildren;
   var column, rowsFragment;
 
   // Filter out items when a filter is given.
@@ -199,7 +200,11 @@ Grid.prototype.addColumns = function(items, options) {
 
   while (i-- !== 0) {
     childSelector = '[data-columns] > *:nth-child(' + options.columns + 'n-' + i + ')';
-    columnsItems.push(items.querySelectorAll(childSelector));
+    columnChildren = items.querySelectorAll(childSelector);
+    
+    if (options.emptyColumns !== false || columnChildren.length > 0) {
+      columnsItems.push(columnChildren);
+    }
   }
 
   each(columnsItems, function(rows) {

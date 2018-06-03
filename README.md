@@ -137,6 +137,17 @@ Also, you can specify which CSS classes will be applied to columns on each media
   });
 ````
 
+In case there are very few items to add, you can also avoid creating empty columns by setting `emptyColumns` to `false`:
+
+````javascript
+  savvior.init("#myGrid", {
+    "screen and (min-width: 40em)": {
+      columns: 4,
+      emptyColumns: false // if there are two items, it will only create two columns, instead of four
+    }
+  });
+````
+
 ### Get status
 
 ````javascript
